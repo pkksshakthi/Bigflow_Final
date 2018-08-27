@@ -1,5 +1,6 @@
 package view.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,10 +13,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
 import com.vsolv.bigflow.R;
+
+import models.UserDetails;
+import presenter.UserSessionManager;
 
 public class DashBoardActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    UserSessionManager session;
+    NavigationView navigationView;
+    View navHeader;
+    TextView nav_header_title, nav_header_subtitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +33,7 @@ public class DashBoardActivity extends AppCompatActivity
         setContentView(R.layout.activity_dash_board);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        session = new UserSessionManager(getApplicationContext());
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -39,7 +50,12 @@ public class DashBoardActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navHeader = navigationView.getHeaderView(0);
+        nav_header_title = navHeader.findViewById(R.id.nav_header_title);
+        nav_header_subtitle = navHeader.findViewById(R.id.nav_header_subtitle);
+
+        nav_header_title.setText(UserDetails.getUser_name());
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -89,9 +105,12 @@ public class DashBoardActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_logout) {
+            session.logoutUser();
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            finish();
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_about) {
 
         }
 

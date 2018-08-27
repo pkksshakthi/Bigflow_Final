@@ -22,17 +22,33 @@
             android:title="Tools" />
     </group>
 
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
+<item android:title="">
+    <menu>
+        <item
+            android:id="@+id/nav_chat"
+            android:icon="@drawable/ic_action_chat"
+            android:title="Chat" />
+        <item
+            android:id="@+id/nav_notes"
+            android:icon="@drawable/ic_action_note"
+            android:title="Notes" />
+        <item
+            android:id="@+id/nav_synchronise"
+            android:icon="@drawable/ic_action_synchronize"
+            android:title="Synchronise" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_action_lock"
+            android:title="Logout" />
+        <item
+            android:id="@+id/nav_helpFeedback"
+            android:icon="@drawable/ic_action_feedback"
+            android:title="Help/Feedback" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_action_info"
+            android:title="About" />
+    </menu>
 
+</item>
 </menu>

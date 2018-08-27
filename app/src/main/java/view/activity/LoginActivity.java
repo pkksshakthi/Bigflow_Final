@@ -2,7 +2,10 @@ package view.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,15 +14,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 
+import com.android.volley.Request;
 import com.vsolv.bigflow.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 
 import constant.Constant;
+import models.Common;
 import models.UserDetails;
 import network.CallbackHandler;
 import presenter.UserSessionManager;
@@ -28,48 +35,68 @@ import presenter.VolleyCallback;
 public class LoginActivity extends Activity {
     Button loginButton;
     EditText loginUserName, loginPassword;
-    private ProgressDialog pd;
+    Integer errorCode;
     UserSessionManager session;
+    // private Prog
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
+        session = new UserSessionManager(getApplicationContext());
         loginUserName = (EditText) findViewById(R.id.loginEmail);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
-        pd = new ProgressDialog(LoginActivity.this);
         loginButton = (Button) findViewById(R.id.loginButton);
-        session = new UserSessionManager(getApplicationContext());
-
-        if (session.isUserLoggedIn()) {
+        errorCode = checkconnection();
+        if (errorCode == 101) {
+            Toast.makeText(getApplicationContext(), "Please switch on 'Internet' Connection", Toast.LENGTH_LONG).show();
+            setVisibility(View.VISIBLE, View.GONE);//Layout progressdialog
+        } else if (errorCode == 102) {
+            setVisibility(View.VISIBLE, View.GONE);
+        } else if (errorCode == 103) {
+            setVisibility(View.GONE, View.VISIBLE);
             HashMap<String, String> user = new HashMap<String, String>();
             user = session.getUserDetails();
             loginRequest(user.get(session.user_id), user.get(session.user_password));
+        } else if (errorCode == 104) {
+            setVisibility(View.GONE, View.VISIBLE);
+            HashMap<String, String> user = session.getUserDetails();
+            try {
+                JSONObject jobj = new JSONObject(user.get(session.user_details));
+                loadData(jobj);
+            } catch (JSONException ex) {
+
+            }
+        } else if (errorCode == 105) {
+            Toast.makeText(getApplicationContext(), "Switch on 'Internet' to Login", Toast.LENGTH_LONG).show();
+            setVisibility(View.VISIBLE, View.GONE);
         }
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String userName = loginUserName.getText().toString();
-                String Pasword = loginPassword.getText().toString();
-                if (userName.length() > 0 && Pasword.length() > 0) {
-                    loginRequest(userName, Pasword);
+                String password = loginPassword.getText().toString();
+                if (checkconnection() == 101) {
+                    Toast.makeText(getApplicationContext(), "Please switch on 'Internet' Connection", Toast.LENGTH_LONG).show();
+                } else if (userName.length() > 0 && password.length() > 0) {
+                    loginRequest(userName, password);
                 } else {
                     Toast.makeText(getApplicationContext(), "Please enter the user name and password", Toast.LENGTH_LONG).show();
                 }
-
-
             }
         });
+    }
 
+    private void setVisibility(int ui, int pd) {
+
+        findViewById(R.id.ln_login).setVisibility(ui);
+        findViewById(R.id.progressBar).setVisibility(pd);
     }
 
     private void loginRequest(final String user_id, final String user_password) {
-        pd.setMessage("Signing In . . .");
-        pd.show();
-        JSONObject jsonObject = new JSONObject();
 
+        JSONObject jsonObject = new JSONObject();
         try {
 
             jsonObject.put(Constant.USERNAME, user_id);
@@ -78,30 +105,36 @@ public class LoginActivity extends Activity {
             Log.e("Login", e.getMessage());
         }
 
-        CallbackHandler.sendReqest(getApplicationContext(), jsonObject.toString(), Constant.URL+"login/", new VolleyCallback() {
+        String URL = Constant.URL + "login/";
+
+
+        CallbackHandler.sendReqest(getApplicationContext(), Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
-                pd.hide();
+                Log.e("result", result);
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String status = jsonObject.getString("MESSAGE");
                     if (status.equals("SUCCESS")) {
                         loadData(jsonObject.getJSONObject("DATA"));
-                        session.createUserLoginSession(user_id,user_password);
+                        session.createUserLoginSession(user_id, user_password, UserDetails.getToday_date(), jsonObject.getJSONObject("DATA").toString());
+
                     } else {
 
                         Toast.makeText(getApplicationContext(), "Unsuccessful", Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
                     Log.e("Login", e.getMessage());
+                    setVisibility(View.VISIBLE, View.GONE);
                 }
 
             }
 
             @Override
             public void onFailure(String result) {
-                pd.hide();
+                //pd.hide();
                 Log.e("Login", result);
+                setVisibility(View.VISIBLE, View.GONE);
             }
         });
     }
@@ -116,7 +149,47 @@ public class LoginActivity extends Activity {
 
         startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
         finish();
+        setVisibility(View.GONE, View.VISIBLE);
     }
 
+    public boolean isOnline(Context context) {
+
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
+        return (netInfo != null && netInfo.isConnected());
+    }
+
+    public int checkconnection() {
+        if (!session.isUserLoggedIn() && !isOnline(getApplicationContext())) {
+            //no session and no Internet
+            return 101;
+        }
+        if (!session.isUserLoggedIn() && isOnline(getApplicationContext())) {
+            //no session and with internet
+            return 102;
+        }
+        if (session.isUserLoggedIn()) {
+            if (isOnline(getApplicationContext())) {
+                // Internet with session
+                return 103;
+            } else {
+                // No internet with session
+                HashMap<String, String> user = session.getUserDetails();
+                Date d1 = Common.convertDate(user.get(session.user_loginDate), "dd-MMM-yyyy");
+                Date d2 = new Date();
+                d2.setTime(d1.getTime());
+                int I = d1.compareTo(d2);
+//                if ((Common.convertDate(user.get(session.user_loginDate), "dd-MMM-yyyy")).equals(new Date())) {
+                if (d1.compareTo(d2) == 0) {
+                    return 104;
+                } else {
+                    return 105;
+                }
+
+            }
+        }
+        return 0;
+    }
 
 }

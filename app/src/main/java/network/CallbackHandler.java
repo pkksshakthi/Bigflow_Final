@@ -26,14 +26,14 @@ public class CallbackHandler {
     private static StringRequest mStringRequest;
     private static RequestQueue mRequestQueue;
 
-    public static RequestQueue sendReqest(final Context context, final String requestBody, String URL, final VolleyCallback success) {
+    public static RequestQueue sendReqest(final Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
 
 
         mContext = context;
 
         mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
 
-        mStringRequest = new StringRequest(Request.Method.POST, URL, new Response.Listener<String>() {
+        mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 success.onSuccess(response);
