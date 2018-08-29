@@ -8,7 +8,7 @@ import constant.Constant;
 
 public class DataBaseHandler extends SQLiteOpenHelper{
     public DataBaseHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, Constant.DATABASENAME, null, Constant.DATABASE_VERSION);
+        super(context, Constant.DATABASE_NAME, null, Constant.DATABASE_VERSION);
     }
 
     @Override

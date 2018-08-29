@@ -1,7 +1,7 @@
 package constant;
 
 public class Constant {
-    public static final String DATABASENAME = "VSOLV";
+    public static final String DATABASE_NAME = "VSOLV";
     public static final int DATABASE_VERSION = 1;
     public static String IP_ADDRESS = "174.138.120.196";
     public static String HOST_NAME = "bigflowdemo";
