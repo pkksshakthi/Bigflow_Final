@@ -1,5 +1,8 @@
 package view.activity;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -19,6 +22,7 @@ import com.vsolv.bigflow.R;
 
 import models.UserDetails;
 import presenter.UserSessionManager;
+import view.fragment.BlankFragment;
 
 public class DashBoardActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -57,11 +61,6 @@ public class DashBoardActivity extends AppCompatActivity
 
         nav_header_title.setText(UserDetails.getUser_name());
         navigationView.setNavigationItemSelectedListener(this);
-
-      /*Get value from Data base*/
-
-
-
     }
 
     @Override
@@ -99,7 +98,7 @@ public class DashBoardActivity extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        android.support.v4.app.Fragment fragment = null;
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
@@ -117,8 +116,18 @@ public class DashBoardActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_about) {
 
-        }
+            fragment = new BlankFragment();
 
+
+        }
+        if (fragment != null) {
+
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.setCustomAnimations(android.R.anim.fade_in,
+                    android.R.anim.fade_out);
+            transaction.add(R.id.content_frame, fragment, "example");
+            transaction.commitAllowingStateLoss();
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
