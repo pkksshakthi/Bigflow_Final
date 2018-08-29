@@ -41,6 +41,11 @@ public class DashBoardActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+      /*Get value from Data base*/
+
+
+
     }
 
     @Override
