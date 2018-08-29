@@ -57,6 +57,11 @@ public class DashBoardActivity extends AppCompatActivity
 
         nav_header_title.setText(UserDetails.getUser_name());
         navigationView.setNavigationItemSelectedListener(this);
+
+      /*Get value from Data base*/
+
+
+
     }
 
     @Override

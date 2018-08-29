@@ -147,6 +147,9 @@ public class LoginActivity extends Activity {
         UserDetails.setUser_name(jsonObject.getString("employee_name"));
         UserDetails.setEntity_gid(jsonObject.getString("entity_gid"));
 
+
+        /*Set values into data base*/
+
         startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
         finish();
         setVisibility(View.GONE, View.VISIBLE);
