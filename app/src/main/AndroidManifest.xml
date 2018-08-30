@@ -24,9 +24,13 @@
         <activity android:name="view.activity.DashBoardActivity" />
 
         <receiver
-            android:name="network.MyReceiver"
+            android:name="network.ConnectivityReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.permission.ACCESS_NETWORK_STATE"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

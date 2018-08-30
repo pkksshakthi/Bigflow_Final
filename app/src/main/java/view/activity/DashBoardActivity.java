@@ -1,9 +1,8 @@
 package view.activity;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -21,16 +20,20 @@ import android.widget.TextView;
 import com.vsolv.bigflow.R;
 
 import models.UserDetails;
+import network.ConnectivityReceiver;
 import presenter.UserSessionManager;
-import view.fragment.BlankFragment;
+import view.fragment.AboutFragment;
+import view.fragment.HelpFeedbackFragment;
+import view.fragment.SynchronizeFragment;
 
 public class DashBoardActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
     UserSessionManager session;
     NavigationView navigationView;
     View navHeader;
     TextView nav_header_title, nav_header_subtitle;
-
+    FloatingActionButton fab;
+    ConnectivityReceiver connectivityReceiver=null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,8 +41,8 @@ public class DashBoardActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         session = new UserSessionManager(getApplicationContext());
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        connectivityReceiver=new ConnectivityReceiver();
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,6 +64,32 @@ public class DashBoardActivity extends AppCompatActivity
 
         nav_header_title.setText(UserDetails.getUser_name());
         navigationView.setNavigationItemSelectedListener(this);
+
+
+
+
+
+
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        Snackbar.make(fab, isConnected?"True":"False", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        connectivityReceiver.setConnectivityReceiver(this);
+        IntentFilter callInterceptorIntentFilter = new IntentFilter("com.vsolv.bigflow.network.ConnectivityReceiver");
+        registerReceiver(connectivityReceiver,callInterceptorIntentFilter);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(connectivityReceiver);
     }
 
     @Override
@@ -114,9 +143,29 @@ public class DashBoardActivity extends AppCompatActivity
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             finish();
 
-        } else if (id == R.id.nav_about) {
+        }else if (id == R.id.nav_chat) {
 
-            fragment = new BlankFragment();
+            fragment = new AboutFragment();
+
+
+        }else if (id == R.id.nav_notes) {
+
+            fragment = new AboutFragment();
+
+
+        }else if (id == R.id.nav_synchronise) {
+
+            fragment = new SynchronizeFragment();
+
+
+        } else if (id == R.id.nav_helpFeedback) {
+
+            fragment = new HelpFeedbackFragment();
+
+
+        }else if (id == R.id.nav_about) {
+
+            fragment = new AboutFragment();
 
 
         }
