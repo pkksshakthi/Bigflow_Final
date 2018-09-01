@@ -2,8 +2,10 @@ package view.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -17,17 +19,22 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.vsolv.bigflow.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 
+import DataBase.DataBaseHandler;
 import constant.Constant;
 import models.Common;
 import models.UserDetails;
+import models.Variables;
 import network.CallbackHandler;
 import presenter.UserSessionManager;
 import presenter.VolleyCallback;
@@ -150,6 +157,74 @@ public class LoginActivity extends Activity {
         startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
         finish();
         setVisibility(View.GONE, View.VISIBLE);
+
+
+//        Ramesh Temp Menu
+        String URL = Constant.URL + "user_rights?emp_gid=13"; //Its from Session
+        CallbackHandler.sendReqest(getApplicationContext(), Request.Method.GET, jsonObject.toString(), URL, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Log.e("result", result);
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String status = jsonObject.getString("MESSAGE");
+                    if (status.equals("FOUND")) {
+//                        JSONObject test =  jsonObject.getJSONObject("DATA");
+                        JSONArray jsonArray;
+                        jsonArray = jsonObject.getJSONArray("DATA");
+                        jsonArray = jsonArray;
+
+                        for (int i = 0 ; i <jsonArray.length();i++)
+                        {
+                            JSONObject obj_json = jsonArray.getJSONObject(i);
+                            ContentValues contentValues = new ContentValues();
+
+                            UserDetails.setmenu_gid("menu_gid");
+                            UserDetails.setmenu_parent_gid("menu_parent_gid");
+                            UserDetails.setmenu_name("menu_name");
+                            UserDetails.setmenu_link("menu_link");
+                            UserDetails.setmenu_displayorder("menu_displayorder");
+                            UserDetails.setmenu_level("menu_level");
+
+                            contentValues.put(UserDetails.menu_gid,obj_json.getString("menu_gid"));
+                            contentValues.put(UserDetails.menu_parent_gid,obj_json.getString("menu_parent_gid"));
+                            contentValues.put(UserDetails.menu_name,obj_json.getString("menu_name"));
+                            contentValues.put(UserDetails.menu_link,obj_json.getString("menu_link"));
+                            contentValues.put(UserDetails.menu_displayorder,obj_json.getString("menu_displayorder"));
+                            contentValues.put(UserDetails.menu_level,obj_json.getString("menu_level"));
+
+                            DataBaseHandler dataBaseHandler = new DataBaseHandler(LoginActivity.this);
+                            dataBaseHandler.Insert("gal_mst_tmenu",contentValues);
+
+                        }
+
+
+//                        To CHeck
+
+                        DataBaseHandler dataBaseHandler = new DataBaseHandler(LoginActivity.this);
+                        List<Variables> strings = new ArrayList<Variables>();
+                        strings = dataBaseHandler.Read_Menu();
+                        Toast.makeText(getApplicationContext(),"From SQLite :" + strings.toString(), Toast.LENGTH_LONG).show();
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Unsuccessful", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    Log.e("Login", e.getMessage());
+                    setVisibility(View.VISIBLE, View.GONE);
+                }
+
+            }
+
+            @Override
+            public void onFailure(String result) {
+                //pd.hide();
+                Log.e("Login", result);
+                setVisibility(View.VISIBLE, View.GONE);
+            }
+        });
+
+//Ramesh Temp Menu Ends
     }
 
     public boolean isOnline(Context context) {
