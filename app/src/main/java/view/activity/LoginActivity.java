@@ -42,6 +42,7 @@ import models.UserDetails;
 import network.CallbackHandler;
 import presenter.UserSessionManager;
 import presenter.VolleyCallback;
+
 /**
  * @author sakthivel
  */
@@ -71,7 +72,7 @@ public class LoginActivity extends Activity {
         loginUserName = findViewById(R.id.loginEmail);
         loginPassword = findViewById(R.id.loginPassword);
         loginButton = findViewById(R.id.loginButton);
-        errorCode = checkconnection();
+        errorCode = checkConnection();
         if (errorCode == 101) {
             Toast.makeText(getApplicationContext(), "Please switch on 'Internet' Connection", Toast.LENGTH_LONG).show();
             setVisibility(View.VISIBLE, View.GONE);//Layout progressdialog
@@ -101,7 +102,7 @@ public class LoginActivity extends Activity {
             public void onClick(View v) {
                 String userName = loginUserName.getText().toString();
                 String password = loginPassword.getText().toString();
-                if (checkconnection() == 101) {
+                if (checkConnection() == 101) {
                     Toast.makeText(getApplicationContext(), "Please switch on 'Internet' Connection", Toast.LENGTH_LONG).show();
                 } else if (userName.length() > 0 && password.length() > 0) {
                     loginRequest(userName, password);
@@ -210,31 +211,21 @@ public class LoginActivity extends Activity {
 //                        JSONObject test =  jsonObject.getJSONObject("DATA");
                         JSONArray jsonArray;
                         jsonArray = jsonObject.getJSONArray("DATA");
-                        jsonArray = jsonArray;
+
 
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj_json = jsonArray.getJSONObject(i);
                             ContentValues contentValues = new ContentValues();
-
-                            UserDetails.setmenu_gid("menu_gid");
-                            UserDetails.setmenu_parent_gid("menu_parent_gid");
-                            UserDetails.setmenu_name("menu_name");
-                            UserDetails.setmenu_link("menu_link");
-                            UserDetails.setmenu_displayorder("menu_displayorder");
-                            UserDetails.setmenu_level("menu_level");
-
-                            contentValues.put(UserDetails.menu_gid, obj_json.getString("menu_gid"));
-                            contentValues.put(UserDetails.menu_parent_gid, obj_json.getString("menu_parent_gid"));
-                            contentValues.put(UserDetails.menu_name, obj_json.getString("menu_name"));
-                            contentValues.put(UserDetails.menu_link, obj_json.getString("menu_link"));
-                            contentValues.put(UserDetails.menu_displayorder, obj_json.getString("menu_displayorder"));
-                            contentValues.put(UserDetails.menu_level, obj_json.getString("menu_level"));
-
+                            contentValues.put("menu_gid", obj_json.getString("menu_gid"));
+                            contentValues.put("menu_parent_gid", obj_json.getString("menu_parent_gid"));
+                            contentValues.put("menu_name", obj_json.getString("menu_name"));
+                            contentValues.put("menu_link", obj_json.getString("menu_link"));
+                            contentValues.put("menu_displayorder", obj_json.getString("menu_displayorder"));
+                            contentValues.put("menu_level", obj_json.getString("menu_level"));
                             DataBaseHandler dataBaseHandler = new DataBaseHandler(LoginActivity.this);
                             dataBaseHandler.Insert("gal_mst_tmenu", contentValues);
                             dataBaseHandler.close();
                         }
-
 
 
                         startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
@@ -271,7 +262,7 @@ public class LoginActivity extends Activity {
         return (netInfo != null && netInfo.isConnected());
     }
 
-    public int checkconnection() {
+    public int checkConnection() {
         if (!session.isUserLoggedIn() && !isOnline(getApplicationContext())) {
             //no session and no Internet
             return 101;
