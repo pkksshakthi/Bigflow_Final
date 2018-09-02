@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 
-
+/**
+ * @author sakthivel
+ */
 public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
     private List<String> mExpandableListTitle;

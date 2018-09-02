@@ -14,7 +14,7 @@ import view.fragment.FragmentACtion;
 
 
 /**
- * @author msahakyan
+ * @author sakthivel
  */
 
 public class FragmentNavigationManager implements NavigationManager {

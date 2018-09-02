@@ -14,7 +14,11 @@ import constant.Constant;
 import models.UserMenu;
 
 public class DataBaseHandler extends SQLiteOpenHelper {
+
+    private static DataBaseHandler dataBaseHandler;
+
     public DataBaseHandler(Context context) {
+
         super(context, Constant.DATABASENAME, null, Constant.DATABASE_VERSION);
     }
 
@@ -52,7 +56,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 UserMenu userMenu = new UserMenu();
-              //  userMenu.setMenuGID(cursor.getInt(cursor.getColumnIndex("menu_gid")));
+                //  userMenu.setMenuGID(cursor.getInt(cursor.getColumnIndex("menu_gid")));
                 userMenu.setMenu_Parent_gid(cursor.getInt(cursor.getColumnIndex("menu_parent_gid")));
                 userMenu.setMenu_Name(cursor.getString(cursor.getColumnIndex("menu_name")));
                /* userMenu.setMenu_Link(cursor.getString(cursor.getColumnIndex("menu_link")));
@@ -65,8 +69,28 @@ public class DataBaseHandler extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
+        sqLiteDatabase.close();
+
         return list;
     }
 
+    public static List<String> getSubMenus(int menu_name, Context context) {
+        if (dataBaseHandler == null) {
+            dataBaseHandler = new DataBaseHandler(context);
+        }
+        ArrayList<String> strings = new ArrayList<>();
 
+        SQLiteDatabase sqLiteDatabase = dataBaseHandler.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select menu_name from gal_mst_tmenu where menu_parent_gid=" + menu_name + "", null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                strings.add(cursor.getString(cursor.getColumnIndex("menu_name")));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+
+        return strings;
+    }
 }

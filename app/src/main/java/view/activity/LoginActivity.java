@@ -42,7 +42,9 @@ import models.UserDetails;
 import network.CallbackHandler;
 import presenter.UserSessionManager;
 import presenter.VolleyCallback;
-
+/**
+ * @author sakthivel
+ */
 public class LoginActivity extends Activity {
     Button loginButton;
     EditText loginUserName, loginPassword;
@@ -116,7 +118,7 @@ public class LoginActivity extends Activity {
         File dbFile = new File(inFileName);
         FileInputStream fis = new FileInputStream(dbFile);
 
-        String outFileName = Environment.getExternalStorageDirectory()+"/database_copy.db";
+        String outFileName = Environment.getExternalStorageDirectory() + "/database_copy.db";
 
         // Open the empty db as the output stream
         OutputStream output = new FileOutputStream(outFileName);
@@ -124,7 +126,7 @@ public class LoginActivity extends Activity {
         // Transfer bytes from the inputfile to the outputfile
         byte[] buffer = new byte[1024];
         int length;
-        while ((length = fis.read(buffer))>0){
+        while ((length = fis.read(buffer)) > 0) {
             output.write(buffer, 0, length);
         }
 
@@ -192,9 +194,6 @@ public class LoginActivity extends Activity {
         UserDetails.setUser_id(jsonObject.getString("employee_gid"));
         UserDetails.setUser_name(jsonObject.getString("employee_name"));
         UserDetails.setEntity_gid(jsonObject.getString("entity_gid"));
-
-        startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
-        finish();
         setVisibility(View.GONE, View.VISIBLE);
 
 
@@ -213,8 +212,7 @@ public class LoginActivity extends Activity {
                         jsonArray = jsonObject.getJSONArray("DATA");
                         jsonArray = jsonArray;
 
-                        for (int i = 0 ; i <jsonArray.length();i++)
-                        {
+                        for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj_json = jsonArray.getJSONObject(i);
                             ContentValues contentValues = new ContentValues();
 
@@ -225,21 +223,23 @@ public class LoginActivity extends Activity {
                             UserDetails.setmenu_displayorder("menu_displayorder");
                             UserDetails.setmenu_level("menu_level");
 
-                            contentValues.put(UserDetails.menu_gid,obj_json.getString("menu_gid"));
-                            contentValues.put(UserDetails.menu_parent_gid,obj_json.getString("menu_parent_gid"));
-                            contentValues.put(UserDetails.menu_name,obj_json.getString("menu_name"));
-                            contentValues.put(UserDetails.menu_link,obj_json.getString("menu_link"));
-                            contentValues.put(UserDetails.menu_displayorder,obj_json.getString("menu_displayorder"));
-                            contentValues.put(UserDetails.menu_level,obj_json.getString("menu_level"));
+                            contentValues.put(UserDetails.menu_gid, obj_json.getString("menu_gid"));
+                            contentValues.put(UserDetails.menu_parent_gid, obj_json.getString("menu_parent_gid"));
+                            contentValues.put(UserDetails.menu_name, obj_json.getString("menu_name"));
+                            contentValues.put(UserDetails.menu_link, obj_json.getString("menu_link"));
+                            contentValues.put(UserDetails.menu_displayorder, obj_json.getString("menu_displayorder"));
+                            contentValues.put(UserDetails.menu_level, obj_json.getString("menu_level"));
 
                             DataBaseHandler dataBaseHandler = new DataBaseHandler(LoginActivity.this);
-                            dataBaseHandler.Insert("gal_mst_tmenu",contentValues);
+                            dataBaseHandler.Insert("gal_mst_tmenu", contentValues);
                             dataBaseHandler.close();
                         }
 
 
-//                        To CHeck
 
+                        startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
+                        finish();
+//                        To CHeck
 
 
                     } else {

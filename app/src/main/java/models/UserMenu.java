@@ -1,5 +1,7 @@
 package models;
-
+/**
+ * @author sakthivel
+ */
 public class UserMenu {
     public int Menu_gid;
     public int Menu_Parent_gid;

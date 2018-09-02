@@ -3,7 +3,9 @@ package models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+/**
+ * @author sakthivel
+ */
 public class Common {
     public static Date convertDate(String inputString, String inputStringFormat) {
         SimpleDateFormat format = new SimpleDateFormat(inputStringFormat);

@@ -23,7 +23,9 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import com.vsolv.bigflow.R;
 import constant.Constant;
-
+/**
+ * @author sakthivel
+ */
 public class SSLSocket {
     public static SSLSocketFactory getSocketFactory(Context mContext) {
 

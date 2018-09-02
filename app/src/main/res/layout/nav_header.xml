@@ -42,7 +42,7 @@
         android:layout_marginBottom="@dimen/layout_margin_default"
         android:gravity="left|start"
         android:paddingLeft="@dimen/layout_padding_default"
-        android:text="@string/website"
+        android:text="VSOLV"
         android:textColor="@color/white"
         android:textSize="@dimen/header_font_size"/>
 

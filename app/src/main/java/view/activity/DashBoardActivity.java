@@ -25,7 +25,9 @@ import models.ExpandableListDataSource;
 import models.FragmentNavigationManager;
 import presenter.NavigationManager;
 
-
+/**
+ * @author sakthivel
+ */
 public class DashBoardActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
@@ -63,7 +65,7 @@ public class DashBoardActivity extends AppCompatActivity {
         setupDrawer();
 
         if (savedInstanceState == null) {
-             selectFirstItemAsDefault();
+            selectFirstItemAsDefault();
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -78,16 +80,16 @@ public class DashBoardActivity extends AppCompatActivity {
 
     private void selectFirstItemAsDefault() {
         if (mNavigationManager != null) {
-             String firstActionMovie = "Activity Trend";
+            String firstActionMovie = "Activity Trend";
 //            mNavigationManager.showFragmentAction(firstActionMovie);
-             mNavigationManager.showFragmentAction(firstActionMovie);
+            mNavigationManager.showFragmentAction(firstActionMovie);
             getSupportActionBar().setTitle(firstActionMovie);
         }
     }
 
     private void initItems() {
 
-       // items = getResources().getStringArray(R.array.film_genre);
+        // items = getResources().getStringArray(R.array.film_genre);
     }
 
     private void addDrawerItems() {
@@ -115,19 +117,7 @@ public class DashBoardActivity extends AppCompatActivity {
                         .get(childPosition).toString();
                 getSupportActionBar().setTitle(selectedItem);
                 mNavigationManager.showFragmentAction(selectedItem);
-               /* if (Constant.parentMenus.get(groupPosition).getMenu_Name().equals(mExpandableListTitle.get(groupPosition))) {
 
-                }*/ /*else if (items[1].equals(mExpandableListTitle.get(groupPosition))) {
-                    mNavigationManager.showFragmentComedy(selectedItem);
-                } else if (items[2].equals(mExpandableListTitle.get(groupPosition))) {
-                    mNavigationManager.showFragmentDrama(selectedItem);
-                } else if (items[3].equals(mExpandableListTitle.get(groupPosition))) {
-                    mNavigationManager.showFragmentMusical(selectedItem);
-                } else if (items[4].equals(mExpandableListTitle.get(groupPosition))) {
-                    mNavigationManager.showFragmentThriller(selectedItem);
-                } else {
-                    //throw new IllegalArgumentException("Not supported fragment type");
-                }*/
 
                 mDrawerLayout.closeDrawer(GravityCompat.START);
                 return false;

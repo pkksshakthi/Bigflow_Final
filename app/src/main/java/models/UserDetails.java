@@ -1,5 +1,7 @@
 package models;
-
+/**
+ * @author sakthivel
+ */
 public class UserDetails {
     private static String user_id;
     private static String user_name;
