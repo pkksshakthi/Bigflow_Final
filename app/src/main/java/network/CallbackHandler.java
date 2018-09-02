@@ -23,17 +23,15 @@ import static com.android.volley.VolleyLog.TAG;
 
 public class CallbackHandler {
     static Context mContext;
-    private static StringRequest mStringRequest;
-    private static RequestQueue mRequestQueue;
 
     public static RequestQueue sendReqest(final Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
 
 
         mContext = context;
 
-        mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
+        RequestQueue mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
 
-        mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
+        StringRequest mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 success.onSuccess(response);
@@ -50,7 +48,7 @@ public class CallbackHandler {
 
 
             @Override
-            public byte[] getBody() throws AuthFailureError {
+            public byte[] getBody() {
 
 
                 try {
@@ -63,7 +61,7 @@ public class CallbackHandler {
             }
 
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 //This appears in the log
                 Log.d(TAG, "Does it assign headers?");
                 HashMap<String, String> headers = new HashMap<String, String>();

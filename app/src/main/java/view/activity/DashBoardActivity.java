@@ -1,113 +1,181 @@
 package view.activity;
 
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.NetworkInfo;
+
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
+
 
 import com.vsolv.bigflow.R;
 
-import models.UserDetails;
-import network.ConnectivityReceiver;
-import presenter.UserSessionManager;
-import view.fragment.AboutFragment;
-import view.fragment.HelpFeedbackFragment;
-import view.fragment.SynchronizeFragment;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public class DashBoardActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
-    UserSessionManager session;
-    NavigationView navigationView;
-    View navHeader;
-    TextView nav_header_title, nav_header_subtitle;
-    FloatingActionButton fab;
-    ConnectivityReceiver connectivityReceiver=null;
+import models.CustomExpandableListAdapter;
+import models.ExpandableListDataSource;
+import models.FragmentNavigationManager;
+import presenter.NavigationManager;
+
+
+public class DashBoardActivity extends AppCompatActivity {
+
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private String mActivityTitle;
+    private String[] items;
+
+    private ExpandableListView mExpandableListView;
+    private List<String> mExpandableListTitle;
+    private NavigationManager mNavigationManager;
+
+    private Map<String, List<String>> mExpandableListData;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dash_board);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        session = new UserSessionManager(getApplicationContext());
-        connectivityReceiver=new ConnectivityReceiver();
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        setContentView(R.layout.activity_main);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mActivityTitle = getTitle().toString();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navHeader = navigationView.getHeaderView(0);
-        nav_header_title = navHeader.findViewById(R.id.nav_header_title);
-        nav_header_subtitle = navHeader.findViewById(R.id.nav_header_subtitle);
+        mExpandableListView = findViewById(R.id.navList);
+        mNavigationManager = FragmentNavigationManager.obtain(this);
 
-        nav_header_title.setText(UserDetails.getUser_name());
-        navigationView.setNavigationItemSelectedListener(this);
+        initItems();
 
+        LayoutInflater inflater = getLayoutInflater();
+        View listHeaderView = inflater.inflate(R.layout.nav_header, null, false);
+        mExpandableListView.addHeaderView(listHeaderView);
+
+        mExpandableListData = ExpandableListDataSource.getData(this);
+        mExpandableListTitle = new ArrayList(mExpandableListData.keySet());
+
+        addDrawerItems();
+        setupDrawer();
+
+        if (savedInstanceState == null) {
+             selectFirstItemAsDefault();
+        }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
 
 
 
+        /*get values from sqlite*/
 
     }
 
-    @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-        Snackbar.make(fab, isConnected?"True":"False", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        connectivityReceiver.setConnectivityReceiver(this);
-        IntentFilter callInterceptorIntentFilter = new IntentFilter("com.vsolv.bigflow.network.ConnectivityReceiver");
-        registerReceiver(connectivityReceiver,callInterceptorIntentFilter);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unregisterReceiver(connectivityReceiver);
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+    private void selectFirstItemAsDefault() {
+        if (mNavigationManager != null) {
+             String firstActionMovie = "Activity Trend";
+//            mNavigationManager.showFragmentAction(firstActionMovie);
+             mNavigationManager.showFragmentAction(firstActionMovie);
+            getSupportActionBar().setTitle(firstActionMovie);
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.dash_board, menu);
-        return true;
+    private void initItems() {
+
+       // items = getResources().getStringArray(R.array.film_genre);
     }
+
+    private void addDrawerItems() {
+        ExpandableListAdapter mExpandableListAdapter = new CustomExpandableListAdapter(this, mExpandableListTitle, mExpandableListData);
+        mExpandableListView.setAdapter(mExpandableListAdapter);
+        mExpandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                getSupportActionBar().setTitle(mExpandableListTitle.get(groupPosition).toString());
+            }
+        });
+
+        mExpandableListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                getSupportActionBar().setTitle(mExpandableListTitle.get(groupPosition).toString());
+            }
+        });
+
+        mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+                String selectedItem = ((List) (mExpandableListData.get(mExpandableListTitle.get(groupPosition))))
+                        .get(childPosition).toString();
+                getSupportActionBar().setTitle(selectedItem);
+                mNavigationManager.showFragmentAction(selectedItem);
+               /* if (Constant.parentMenus.get(groupPosition).getMenu_Name().equals(mExpandableListTitle.get(groupPosition))) {
+
+                }*/ /*else if (items[1].equals(mExpandableListTitle.get(groupPosition))) {
+                    mNavigationManager.showFragmentComedy(selectedItem);
+                } else if (items[2].equals(mExpandableListTitle.get(groupPosition))) {
+                    mNavigationManager.showFragmentDrama(selectedItem);
+                } else if (items[3].equals(mExpandableListTitle.get(groupPosition))) {
+                    mNavigationManager.showFragmentMusical(selectedItem);
+                } else if (items[4].equals(mExpandableListTitle.get(groupPosition))) {
+                    mNavigationManager.showFragmentThriller(selectedItem);
+                } else {
+                    //throw new IllegalArgumentException("Not supported fragment type");
+                }*/
+
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                return false;
+            }
+        });
+    }
+
+    private void setupDrawer() {
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                getSupportActionBar().setTitle(mActivityTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                getSupportActionBar().setTitle(mActivityTitle);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -116,69 +184,11 @@ public class DashBoardActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        // Activate the navigation drawer toggle
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        android.support.v4.app.Fragment fragment = null;
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_logout) {
-            session.logoutUser();
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-            finish();
-
-        }else if (id == R.id.nav_chat) {
-
-            fragment = new AboutFragment();
-
-
-        }else if (id == R.id.nav_notes) {
-
-            fragment = new AboutFragment();
-
-
-        }else if (id == R.id.nav_synchronise) {
-
-            fragment = new SynchronizeFragment();
-
-
-        } else if (id == R.id.nav_helpFeedback) {
-
-            fragment = new HelpFeedbackFragment();
-
-
-        }else if (id == R.id.nav_about) {
-
-            fragment = new AboutFragment();
-
-
-        }
-        if (fragment != null) {
-
-            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(android.R.anim.fade_in,
-                    android.R.anim.fade_out);
-            transaction.add(R.id.content_frame, fragment, "example");
-            transaction.commitAllowingStateLoss();
-        }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 }

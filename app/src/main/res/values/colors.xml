@@ -7,4 +7,16 @@
     <color name="colorPrimary">#0484a1</color>
     <color name="colorPrimaryDark">#016379</color>
     <color name="colorAccent">#0587eb</color>
+
+    <color name="list_group_title">#808080</color>
+    <color name="list_item_title">#AAAAAA</color>
+
+    <color name="group_divider_color">#80CBC4</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="lime">#E6EE9C</color>
+    <color name="orange">#FFCC80</color>
+    <color name="grey">#B0BEC5</color>
+    <color name="purple">#B39DDB</color>
+    <color name="pink">#F48FB1</color>
 </resources>

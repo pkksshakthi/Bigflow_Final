@@ -33,7 +33,7 @@
             android:title="Notes" />
         <item
             android:id="@+id/nav_synchronise"
-            android:icon="@drawable/ic_action_synchronize"
+            android:icon="@drawable/ic_action_note"
             android:title="Synchronise" />
         <item
             android:id="@+id/nav_logout"
