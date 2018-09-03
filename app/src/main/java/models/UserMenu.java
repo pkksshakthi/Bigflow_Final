@@ -13,8 +13,9 @@ public class UserMenu {
     private int menu_Parent_gid;
     private String menu_Name;
 
+
     public void setMenuGID(int menuGID) {
-        int menuGID1 = menuGID;
+          Menu_gid = menuGID;
     }
 
     public void setMenu_Parent_gid(int menu_Parent_gid) {
@@ -43,5 +44,9 @@ public class UserMenu {
 
     public String getMenu_Name() {
         return menu_Name;
+    }
+
+    public int getMenuGID() {
+        return Menu_gid;
     }
 }

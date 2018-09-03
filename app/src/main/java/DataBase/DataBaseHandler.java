@@ -50,13 +50,13 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
     public List<UserMenu> Read_Menu() {
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery("select * from gal_mst_tmenu where NOT menu_parent_gid=0", null);
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from gal_mst_tmenu where  menu_parent_gid=0", null);
         List<UserMenu> list = new ArrayList<UserMenu>();
 
         if (cursor.moveToFirst()) {
             do {
                 UserMenu userMenu = new UserMenu();
-                //  userMenu.setMenuGID(cursor.getInt(cursor.getColumnIndex("menu_gid")));
+                userMenu.setMenuGID(cursor.getInt(cursor.getColumnIndex("menu_gid")));
                 userMenu.setMenu_Parent_gid(cursor.getInt(cursor.getColumnIndex("menu_parent_gid")));
                 userMenu.setMenu_Name(cursor.getString(cursor.getColumnIndex("menu_name")));
                /* userMenu.setMenu_Link(cursor.getString(cursor.getColumnIndex("menu_link")));
@@ -64,7 +64,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
                 userMenu.setMenu_Level(cursor.getInt(cursor.getColumnIndex("menu_level")));*/
 
 
-                Log.v("userMenu", "" + userMenu.Menu_gid);
+                Log.v("userMenu", "" + cursor.getInt(cursor.getColumnIndex("menu_gid")));
                 list.add(userMenu);
             } while (cursor.moveToNext());
         }

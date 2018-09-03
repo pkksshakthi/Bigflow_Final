@@ -57,11 +57,12 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_FINE_LOCATION};
         Permissions.check(this/*context*/, permissions, null/*rationale*/, null/*options*/, new PermissionHandler() {
             @Override
             public void onGranted() {
                 try {
+
                     backup();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -115,7 +116,7 @@ public class LoginActivity extends Activity {
     }
 
     private void backup() throws IOException {
-        final String inFileName = "/data/user/0/com.vsolv.bigflow/databases/VSOLV.db";
+        final String inFileName = "/data/user/0/com.vsolv.bigflow/databases/VSOLV";
         File dbFile = new File(inFileName);
         FileInputStream fis = new FileInputStream(dbFile);
 

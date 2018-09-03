@@ -5,7 +5,8 @@ package presenter;
  */
 
 public interface NavigationManager {
-
     void showFragmentAction(String title);
+
+
 
 }

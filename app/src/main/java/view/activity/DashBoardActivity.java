@@ -116,6 +116,8 @@ public class DashBoardActivity extends AppCompatActivity {
                 String selectedItem = ((List) (mExpandableListData.get(mExpandableListTitle.get(groupPosition))))
                         .get(childPosition).toString();
                 getSupportActionBar().setTitle(selectedItem);
+
+
                 mNavigationManager.showFragmentAction(selectedItem);
 
 

@@ -25,7 +25,12 @@ public class ExpandableListDataSource {
         Constant.parentMenus = dataBaseHandler.Read_Menu();
         Map<String, List<String>> expandableListData = new TreeMap<>();
         for (int i = 0; i < Constant.parentMenus.size(); i++) {
-            expandableListData.put(Constant.parentMenus.get(i).getMenu_Name(), DataBaseHandler.getSubMenus(Constant.parentMenus.get(i).getMenu_Parent_gid(), context));
+
+            String name=Constant.parentMenus.get(i).getMenu_Name();
+            int id=Constant.parentMenus.get(i).getMenuGID();
+            Log.v("Name_vsolv"+name,"ID"+id);
+            expandableListData.put(Constant.parentMenus.get(i).getMenu_Name(),
+                    DataBaseHandler.getSubMenus(Constant.parentMenus.get(i).getMenuGID(), context));
         }
         return expandableListData;
     }
