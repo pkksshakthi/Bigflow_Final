@@ -3,6 +3,7 @@ package constant;
 import java.util.List;
 
 import models.UserMenu;
+import models.Variables;
 
 public class Constant {
     public static final String DATABASENAME = "VSOLV";
@@ -12,5 +13,17 @@ public class Constant {
     public static String URL = "https://" + IP_ADDRESS + "/" + HOST_NAME + "/";
     public static String USERNAME = "username";
     public static String PASSWORD = "password";
-    public static  List<UserMenu> parentMenus;
+    public static List<Variables.Menulist> parentMenus;
+
+
+
+
+    //table_columnName
+    public static String menu_gid="menu_gid";
+    public static String menu_parent_gid="menu_parent_gid";
+    public static String menu_name="menu_name";
+    public static String menu_link="menu_link";
+    public static String menu_displayorder="menu_displayorder";
+    public static String menu_level="menu_level";
+
 }

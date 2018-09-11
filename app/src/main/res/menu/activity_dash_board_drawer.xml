@@ -5,21 +5,25 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_schedule"
+            android:icon="@drawable/ic_action_schedule"
+            android:title="Day Schedule" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_direct"
+            android:icon="@drawable/ic_action_clock"
+            android:title="Direct" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_addschedule"
+            android:icon="@drawable/ic_action_addschedule"
+            android:title="Add Schedule" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_prospect"
+            android:icon="@drawable/ic_action_addcustomer"
+            android:title="Prospects" />
+        <item
+            android:id="@+id/nav_report"
+            android:icon="@drawable/ic_action_report"
+            android:title="Report" />
     </group>
 <group android:id="@+id/grp_communication" android:checkableBehavior="single">
 
@@ -33,7 +37,7 @@
             android:title="Notes" />
         <item
             android:id="@+id/nav_synchronise"
-            android:icon="@drawable/ic_action_note"
+            android:icon="@drawable/ic_action_synchronize"
             android:title="Synchronise" />
         <item
             android:id="@+id/nav_logout"

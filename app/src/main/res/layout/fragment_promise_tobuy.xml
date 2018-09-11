@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    tools:context="view.fragment.Promise_tobuy">
+
+
+    <EditText
+        android:id="@+id/in_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:editable="false"
+        android:focusable="false"
+        android:hint="Date" />
+
+
+    <EditText
+        android:id="@+id/remark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Remark"
+        android:inputType="text"
+        android:padding="10dp" />
+
+
+    <Button
+        android:id="@+id/remark_submitbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/submit_button"
+        android:padding="10dp"
+        android:text="Submit"
+        android:tooltipText="Submit"
+        android:textColor="@color/colorWhite" />
+
+
+</LinearLayout>

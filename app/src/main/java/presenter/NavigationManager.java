@@ -1,11 +1,10 @@
 package presenter;
 
-/**
- * @author msahakyan
- */
+
+import android.support.v4.app.Fragment;
 
 public interface NavigationManager {
 
-    void showFragmentAction(String title);
+    void showFragmentAction(Fragment fragment);
 
 }

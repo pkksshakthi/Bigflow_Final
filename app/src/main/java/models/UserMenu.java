@@ -1,47 +1,70 @@
 package models;
-/**
- * @author sakthivel
- */
+
 public class UserMenu {
-    public int Menu_gid;
-    public int Menu_Parent_gid;
-    public String Menu_Name;
-    public String Menu_Link;
-    public int Menu_Display_Order;
-    public int Menu_Level;
-    public int Entity_gid;
-    private int menu_Parent_gid;
-    private String menu_Name;
 
-    public void setMenuGID(int menuGID) {
-        int menuGID1 = menuGID;
+    private static int entity_gid;
+    public static int menu_gid;
+    public static int menu_parent_gid;
+    public static String menu_name;
+    public static String menu_link;
+    public static int menu_displayorder;
+    public static String menu_level;
+
+    public static int getEntity_gid() {
+        return entity_gid;
     }
 
-    public void setMenu_Parent_gid(int menu_Parent_gid) {
-        this.menu_Parent_gid = menu_Parent_gid;
+    public static void setEntity_gid(int entity_gid) {
+        UserMenu.entity_gid = entity_gid;
     }
 
-    public void setMenu_Name(String menu_Name) {
-        this.menu_Name = menu_Name;
+    public static int getMenu_gid() {
+        return menu_gid;
     }
 
-    public void setMenu_Link(String menu_Link) {
-        String menu_Link1 = menu_Link;
+    public static void setMenu_gid(int menu_gid) {
+        UserMenu.menu_gid = menu_gid;
     }
 
-    public void setMenu_Display_Order(int menu_Display_Order) {
-        int menu_Display_Order1 = menu_Display_Order;
+    public static int getMenu_parent_gid() {
+        return menu_parent_gid;
     }
 
-    public void setMenu_Level(int menu_Level) {
-        int menu_Level1 = menu_Level;
+    public static void setMenu_parent_gid(int menu_parent_gid) {
+        UserMenu.menu_parent_gid = menu_parent_gid;
     }
 
-    public int getMenu_Parent_gid() {
-        return menu_Parent_gid;
+    public static String getMenu_name() {
+        return menu_name;
     }
 
-    public String getMenu_Name() {
-        return menu_Name;
+    public static void setMenu_name(String menu_name) {
+        UserMenu.menu_name = menu_name;
     }
+
+    public static String getMenu_link() {
+        return menu_link;
+    }
+
+    public static void setMenu_link(String menu_link) {
+        UserMenu.menu_link = menu_link;
+    }
+
+    public static int getMenu_displayorder() {
+        return menu_displayorder;
+    }
+
+    public static void setMenu_displayorder(int menu_displayorder) {
+        UserMenu.menu_displayorder = menu_displayorder;
+    }
+
+    public static String getMenu_level() {
+        return menu_level;
+    }
+
+    public static void setMenu_level(String menu_level) {
+        UserMenu.menu_level = menu_level;
+    }
+
+
 }

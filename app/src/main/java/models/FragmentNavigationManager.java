@@ -10,12 +10,8 @@ import com.vsolv.bigflow.R;
 
 import presenter.NavigationManager;
 import view.activity.DashBoardActivity;
-import view.fragment.FragmentACtion;
+import view.fragment.AboutFragment;
 
-
-/**
- * @author sakthivel
- */
 
 public class FragmentNavigationManager implements NavigationManager {
 
@@ -37,8 +33,8 @@ public class FragmentNavigationManager implements NavigationManager {
     }
 
     @Override
-    public void showFragmentAction(String title) {
-        showFragment(FragmentACtion.newInstance(title), false);
+    public void showFragmentAction(Fragment fragment) {
+        showFragment(fragment, false);
     }
 
     private void showFragment(Fragment fragment, boolean allowStateLoss) {
@@ -56,6 +52,6 @@ public class FragmentNavigationManager implements NavigationManager {
             ft.commit();
         }
 
-        fm.executePendingTransactions();
+        //fm.executePendingTransactions();
     }
 }

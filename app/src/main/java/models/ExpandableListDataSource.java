@@ -1,11 +1,7 @@
 package models;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,7 +21,8 @@ public class ExpandableListDataSource {
         Constant.parentMenus = dataBaseHandler.Read_Menu();
         Map<String, List<String>> expandableListData = new TreeMap<>();
         for (int i = 0; i < Constant.parentMenus.size(); i++) {
-            expandableListData.put(Constant.parentMenus.get(i).getMenu_Name(), DataBaseHandler.getSubMenus(Constant.parentMenus.get(i).getMenu_Parent_gid(), context));
+            int s =Constant.parentMenus.get(i).Menu_gid;
+            expandableListData.put(Constant.parentMenus.get(i).Menu_Name, DataBaseHandler.getSubMenus(Constant.parentMenus.get(i).Menu_gid, context));
         }
         return expandableListData;
     }
