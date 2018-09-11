@@ -155,7 +155,7 @@ public class LoginActivity extends Activity {
         UserDetails.setUser_name(jsonObject.getString("employee_name"));
         UserDetails.setEntity_gid(jsonObject.getString("entity_gid"));
 
-
+/*
 //        Ramesh Temp Menu
         String URL = Constant.URL + "user_rights?emp_gid=" + UserDetails.getUser_id(); //Its from Session
         CallbackHandler.sendReqest(getApplicationContext(), Request.Method.GET, jsonObject.toString(), URL, new VolleyCallback() {
@@ -216,6 +216,7 @@ public class LoginActivity extends Activity {
         });
 
 //Ramesh Temp Menu Ends
+*/
         startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
         finish();
         setVisibility(View.GONE, View.VISIBLE);

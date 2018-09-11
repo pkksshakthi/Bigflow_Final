@@ -13,8 +13,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import constant.Constant;
+import models.UserDetails;
+
 import com.android.volley.Request;
 import com.vsolv.bigflow.R;
+
 import network.CallbackHandler;
 
 import presenter.VolleyCallback;
@@ -24,12 +28,16 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 
+import static java.lang.Integer.parseInt;
+
 
 public class Promise_tobuy extends Fragment implements View.OnClickListener {
     Button remark_submit;
     EditText txtDate, remark_text;
     private int mYear, mMonth, mDay, mHour, mMinute;
-
+    private Bundle customer_details, Remark_intent;
+    int schedule_type_gid, customer_gid;
+    private String date, Remark_date;
 
 
     public Promise_tobuy() {
@@ -39,12 +47,14 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        Remark_intent = new Bundle();
         View rootView = inflater.inflate(R.layout.fragment_promise_tobuy, container, false);
         txtDate = (EditText) rootView.findViewById(R.id.in_date);
         remark_submit = (Button) rootView.findViewById(R.id.remark_submitbtn);
@@ -58,68 +68,116 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view == txtDate) {
+
             final Calendar c = Calendar.getInstance();
             mYear = c.get(Calendar.YEAR);
             mMonth = c.get(Calendar.MONTH);
             mDay = c.get(Calendar.DAY_OF_MONTH);
-
-
             DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), datePickerListener, mYear, mMonth, mDay);
             datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
             datePickerDialog.setCancelable(false);
             datePickerDialog.setTitle("Choose Remark date");
             datePickerDialog.show();
+
         } else if (view == remark_submit) {
-            JSONObject json = new JSONObject();
-            JSONObject json1 = new JSONObject();
+            if (Remark_date != null && remark_text.getText().toString() !="") {
+                customer_details = getActivity().getIntent().getExtras();
 
-            try {
-                // Log.e("",remark_text.getText().toString());
-                json.put("customer_gid", "990");
-                json.put("schedule_type_gid", 1);
-                json.put("TYPE", "SCHEDULE");
-                json.put("Date", "04/09/2018");
+                if (getActivity().getIntent() != null) {
+                    customer_gid = customer_details.getInt("customer_id");
+                    schedule_type_gid = customer_details.getInt("scheduletype_id");
+                }
 
-                json1.put("parms", json);
-                Log.e("Remark",json1.toString());
-                //json.put(Constant.Remark, remark_text.getText().toString());
+                JSONObject json = new JSONObject();
+                JSONObject json1 = new JSONObject();
 
+                try {
 
-            } catch (JSONException e) {
-                Log.e("Remark", e.getMessage());
-            }
+                    json.put("customer_gid", customer_gid);
+                    json.put("schedule_type_gid", schedule_type_gid);
+                    json.put("TYPE", "SCHEDULE");
+                    json.put("Date", Remark_date);
+                    json1.put("parms", json);
+                    Log.e("Remark1", json1.toString());
 
-            //  String URL = Constant.URL + "FET_Schedule_Set?emp_gid=57,Entity_gid=1/";
-            String URL = "https://174.138.120.196/bigflowdemo/FET_Schedule_Set?Entity_gid=1&Emp_gid=13";
-            CallbackHandler.sendReqest(getActivity(), Request.Method.POST, json1.toString(), URL, new VolleyCallback() {
-                @Override
-                public void onSuccess(String result) {
-                    Log.e("result", result);
-                    try {
-                        JSONObject jsonObject = new JSONObject(result);
-                        String status = jsonObject.getString("MESSAGE");
-                        if (status.equals("SUCCESS")) {
+                } catch (JSONException e) {
+                    Log.e("Remark", e.getMessage());
+                }
 
+                String URL = Constant.URL + "/FET_Schedule_Set?Entity_gid=" + UserDetails.getEntity_gid() + "&Emp_gid=" + UserDetails.getUser_id();
+                CallbackHandler.sendReqest(getActivity(), Request.Method.POST, json1.toString(), URL, new VolleyCallback() {
 
-                            Toast.makeText(getActivity(), "Remark saved", Toast.LENGTH_LONG).show();
-
+                    @Override
+                    public void onSuccess(String result) {
+                        Log.e("result", result);
+                        String replaced = result.replaceAll("[\\[\\]\"]", "");
+                        String replaced2 = replaced.replace("\\", "");
+                        Integer schedule_gid;
+                        if (!"Schedule Already Created".equals(replaced2)) {
+                            schedule_gid = Integer.valueOf(replaced2);
 
                         } else {
+                            Toast.makeText(getActivity(), "Schedule Already Created", Toast.LENGTH_LONG).show();
 
-                            Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG).show();
+                            return;
                         }
-                    } catch (JSONException e) {
-                        Log.e("Remark", e.getMessage());
+                        try {
+
+                            if (schedule_gid != null) {
+                                JSONObject followup_json = new JSONObject();
+                                JSONObject followup_json1 = new JSONObject();
+                                try {
+
+                                    followup_json.put("schedule_gid", schedule_gid);
+                                    followup_json.put("followupreason_gid", 20);
+                                    followup_json.put("ls_followup_date", Remark_date);
+                                    followup_json.put("ls_Remarks", remark_text.getText().toString());
+                                    followup_json.put("TYPE", "INDATE");
+                                    followup_json1.put("parms", followup_json);
+
+
+                                } catch (JSONException e) {
+                                    Log.e("Remark", e.getMessage());
+                                }
+                                String URL = Constant.URL + "/FET_Schedule_Set?Entity_gid=" + UserDetails.getEntity_gid() + "&Emp_gid=" + UserDetails.getUser_id();
+                                CallbackHandler.sendReqest(getActivity(), Request.Method.POST, followup_json1.toString(), URL, new VolleyCallback() {
+
+                                    @Override
+                                    public void onSuccess(String result) {
+                                        Log.e("Followup_Remark_pass", result);
+
+                                            if ( result == "SUCCESS") {
+                                                Toast.makeText(getActivity(), "Remark saved", Toast.LENGTH_LONG).show();
+                                            } else {
+                                                Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG).show();
+                                            }
+                                    }
+
+                                    @Override
+                                    public void onFailure(String result) {
+
+                                        Log.e("Followup_Remark_p2b", result);
+                                    }
+                                });
+                            } else {
+                                Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG).show();
+                            }
+                        } catch (Exception e) {
+                            Log.e("Remark", e.getMessage());
+                        }
                     }
 
-                }
+                    @Override
+                    public void onFailure(String result) {
 
-                @Override
-                public void onFailure(String result) {
-                    //pd.hide();
-                    Log.e("Remark", result);
-                }
-            });
+                        Log.e("Remark", result);
+                    }
+                });
+            } else {
+                Toast.makeText(getActivity(), "Choose The Date", Toast.LENGTH_LONG).show();
+
+            }
+
         }
     }
 
@@ -130,7 +188,12 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
             String year1 = String.valueOf(selectedYear);
             String month1 = String.valueOf(selectedMonth + 1);
             String day1 = String.valueOf(selectedDay);
-            txtDate.setText(day1 + "/" + month1 + "/" + year1);
+            String day = String.format("%02d", parseInt(day1));
+            String month = String.format("%02d", parseInt(month1));
+            String Date = day + "/" + month + "/" + year1;
+            txtDate.setText(Date);
+            Remark_date = Date;
+
         }
     };
 

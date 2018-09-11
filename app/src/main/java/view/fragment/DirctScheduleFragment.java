@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import DataBase.GetData;
 import constant.Constant;
 import models.CustomerAdapter;
 import models.ScheduleForAdapter;
@@ -46,12 +48,13 @@ public class DirctScheduleFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     EditText customerSearch;
     private RecyclerView recyclerView;
+    private TextView empty_view;
     public CustomerAdapter adapter;
     private ArrayList<Variables.Customer> customerList;
 
     public ListView listView;
     public ScheduleForAdapter scheduleForAdapter;
-    private ArrayList<Variables.ScheduleType> scheduleTypeList;
+    private List<Variables.ScheduleType> scheduleTypeList;
     private AlertDialog alertDialog;
     private Bundle sessiondata;
     private String mParam1;
@@ -89,6 +92,7 @@ public class DirctScheduleFragment extends Fragment {
         sessiondata = new Bundle();
         View view = inflater.inflate(R.layout.fragment_dirct_schedule, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.customerRecyclerView);
+        empty_view = view.findViewById(R.id.empty_view);
         customerSearch = view.findViewById(R.id.customer_search);
         customerSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -112,14 +116,9 @@ public class DirctScheduleFragment extends Fragment {
         customerList = new ArrayList<>();
 
         //Model dialog
-        Variables.ScheduleType sa = new Variables.ScheduleType();
-        sa.schedule_type_id = 2;
-        sa.schedule_type_name = "Sales";
-        scheduleTypeList = new ArrayList<>();
-        scheduleTypeList.add(sa);
-        sa = new Variables.ScheduleType();
-        sa.schedule_type_name = "Collection";
-        scheduleTypeList.add(sa);
+        GetData getData = new GetData(getActivity());
+        scheduleTypeList = getData.scheduleTypeList();
+
         String URL = Constant.URL + "Customer_Mapped?emp_gid=57&action=execmapping&Entity_gid=1";
         CallbackHandler.sendReqest(getContext(), Request.Method.GET, "", URL, new VolleyCallback() {
 
@@ -130,9 +129,9 @@ public class DirctScheduleFragment extends Fragment {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("MESSAGE");
+                    adapter = new CustomerAdapter(getActivity(), customerList);
                     if (message.equals("FOUND")) {
                         JSONArray jsonArray = jsonObject.getJSONArray("DATA");
-
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj_json = jsonArray.getJSONObject(i);
                             String display_name = obj_json.getString("display_name");
@@ -141,10 +140,10 @@ public class DirctScheduleFragment extends Fragment {
                             customerList.add(new Variables.Customer(display_name, location_name, customer_gid));
                         }
 
-
-                        adapter = new CustomerAdapter(getActivity(), customerList);
                         recyclerView.setAdapter(adapter);
+
                         createDialog();
+
                         adapter.setOnclickListener(new CustomerAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(Variables.Customer item, int position) {
@@ -157,8 +156,13 @@ public class DirctScheduleFragment extends Fragment {
                                 Toast.makeText(getContext(), "" + position + "test", Toast.LENGTH_LONG).show();
                             }
                         });
+                    }
+                    if (adapter.getItemCount() == 0) {
+                        recyclerView.setVisibility(View.GONE);
+                        empty_view.setVisibility(View.VISIBLE);
                     } else {
-
+                        recyclerView.setVisibility(View.VISIBLE);
+                        empty_view.setVisibility(View.GONE);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

@@ -1,5 +1,6 @@
 package view.activity;
 
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.vsolv.bigflow.R;
@@ -17,8 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import view.fragment.Promise_tobuy;
+import view.fragment.Sales_order;
+import view.fragment.Sales_others;
 
 public class SalesActivity extends AppCompatActivity {
+    private boolean doubleBackToExitPressedOnce;
     private Toolbar salesToolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -54,9 +59,10 @@ public class SalesActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new Promise_tobuy(), "Sales");
+        adapter.addFragment(new Sales_order(), "Sales");
         adapter.addFragment(new Promise_tobuy(), "P2B");
-        adapter.addFragment(new Promise_tobuy(), "Others");
+        adapter.addFragment(new Sales_others(), "others");
+
 
         viewPager.setAdapter(adapter);
     }
@@ -90,13 +96,27 @@ public class SalesActivity extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-        finish();
-        super.onBackPressed();
+
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        onBackPressed();
+        super.onBackPressed();
         return super.onSupportNavigateUp();
     }
 }

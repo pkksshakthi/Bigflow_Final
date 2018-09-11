@@ -109,6 +109,7 @@ public class DashBoardActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), LocationService.class);
             startService(intent);
         }
+        setFragment(selectFragment(""));
     }
 
     private void checkLocationPermission() {
@@ -222,6 +223,7 @@ public class DashBoardActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
     }
 
     @Override
@@ -306,7 +308,8 @@ public class DashBoardActivity extends AppCompatActivity {
                 fab.hide();
                 break;
             default:
-                fragment = AboutFragment.newInstance("About", "");
+                fragment = DirctScheduleFragment.newInstance("Customers", "");
+                fab.hide();
                 break;
         }
         return fragment;
