@@ -13,6 +13,8 @@ import java.util.List;
 
 import constant.Constant;
 import models.Variables;
+import DataBase.DBTables;
+
 
 public class DataBaseHandler extends SQLiteOpenHelper {
     private static DataBaseHandler dataBaseHandler;
@@ -23,15 +25,20 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String query = "CREATE TABLE gal_mst_tmenu (" +
-                "  menu_gid int  NOT NULL," +
-                "  menu_parent_gid integer NOT NULL," +
-                "  menu_name varchar(64) NOT NULL," +
-                "  menu_link varchar(128) DEFAULT NULL," +
-                "  menu_displayorder integer NOT NULL DEFAULT '0'," +
-                "  menu_level integer NOT NULL DEFAULT '0'" +
-                ") ";
-        sqLiteDatabase.execSQL(query);
+//        String query = "CREATE TABLE gal_mst_tmenu (" +
+//                "  menu_gid int  NOT NULL," +
+//                "  menu_parent_gid integer NOT NULL," +
+//                "  menu_name varchar(64) NOT NULL," +
+//                "  menu_link varchar(128) DEFAULT NULL," +
+//                "  menu_displayorder integer NOT NULL DEFAULT '0'," +
+//                "  menu_level integer NOT NULL DEFAULT '0'" +
+//                ") ";
+//        sqLiteDatabase.execSQL(query);
+
+
+       sqLiteDatabase.execSQL(DBTables.CREATE_TABLE_Menu.toString());
+       sqLiteDatabase.execSQL(DBTables.CREATE_TABLE_LatLong.toString());
+
     }
 
     @Override
@@ -101,5 +108,31 @@ public class DataBaseHandler extends SQLiteOpenHelper {
 
         return strings;
     }
+
+    public  List<Variables.Location> getLatLong(Context context){
+        if (dataBaseHandler ==null){
+            dataBaseHandler = new DataBaseHandler(context);
+        }
+
+        SQLiteDatabase sqLiteDatabase = dataBaseHandler.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select latlong_gid,latlong_lat,latlong_long,latlong_date,latlong_emp_gid " +
+                "from fet_trn_tlatlong where latlong_issync = 'N';",null);
+        List<Variables.Location> list = new ArrayList<>();
+        if (cursor.moveToFirst()){
+            do{
+             Variables.Location location = new Variables.Location();
+             location.latlong_lat = cursor.getDouble(cursor.getColumnIndex("latlong_lat"));
+             location.latlong_long = cursor.getDouble(cursor.getColumnIndex("latlong_long"));
+             location.latlong_date = cursor.getString(cursor.getColumnIndex("latlong_date"));
+             location.emp_gid = cursor.getInt(cursor.getColumnIndex("latlong_emp_gid"));
+             list.add(location);
+
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+
+    }
+
 
 }

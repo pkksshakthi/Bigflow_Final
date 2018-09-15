@@ -2,6 +2,7 @@ package network;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,9 +11,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import DataBase.DataBaseHandler;
+import constant.Constant;
+import models.Common;
+import models.UserDetails;
+import view.activity.LoginActivity;
 
 public class LocationService extends Service implements LocationListener {
     private Timer mTimer;
@@ -94,16 +105,30 @@ public class LocationService extends Service implements LocationListener {
                     location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 }
             }
-            Log.e("latitude",location.getLatitude()+"");
-            Log.e("longitude",location.getLongitude()+"");
-            latitude = location.getLatitude();
-            longitude = location.getLongitude();
+//            Log.e("latitude",location.getLatitude()+"");
+//            Log.e("longitude",location.getLongitude()+"");
+//            latitude = location.getLatitude();
+//            longitude = location.getLongitude();
             setLatLong(location);
         }
 
     }
 
     private void setLatLong(Location location) {
+        DataBaseHandler dataBaseHandler = new DataBaseHandler(LocationService.this);
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(Constant.latitude,location.getLatitude());
+        contentValues.put(Constant.longitude,location.getLongitude());
+        contentValues.put(Constant.latlong_date, Common.convertDateString(new Date(),"yyyy-MM-dd HH:mm:ss"));
+        contentValues.put(Constant.latlong_emp_gid, UserDetails.getUser_id());
+
+        String Out_Message = dataBaseHandler.Insert("fet_trn_tlatlong",contentValues);
+//        String Out_Message = "ss";
+
+        if (!"SUCCESS".equals(Out_Message) ){
+            Toast.makeText(getApplicationContext(),"Error.:"+"Error On Lat Long Save. ",Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

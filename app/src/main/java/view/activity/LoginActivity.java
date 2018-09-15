@@ -83,6 +83,7 @@ public class LoginActivity extends Activity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                setVisibility(View.GONE, View.VISIBLE);
                 String userName = loginUserName.getText().toString();
                 String password = loginPassword.getText().toString();
                 if (checkconnection() == 101) {
@@ -129,7 +130,8 @@ public class LoginActivity extends Activity {
 
                     } else {
 
-                        Toast.makeText(getApplicationContext(), "Unsuccessful", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Please Check User Code & Password", Toast.LENGTH_LONG).show();
+                        setVisibility(View.VISIBLE, View.GONE);
                     }
                 } catch (JSONException e) {
                     Log.e("Login", e.getMessage());
@@ -143,6 +145,11 @@ public class LoginActivity extends Activity {
                 //pd.hide();
                 Log.e("Login", result);
                 setVisibility(View.VISIBLE, View.GONE);
+            }
+
+            @Override
+            public List<Variables.Product> onAutoComplete(String result) {
+                return null;
             }
         });
     }

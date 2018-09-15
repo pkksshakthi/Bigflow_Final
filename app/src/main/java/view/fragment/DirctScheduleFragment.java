@@ -36,6 +36,7 @@ import DataBase.GetData;
 import constant.Constant;
 import models.CustomerAdapter;
 import models.ScheduleForAdapter;
+import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
 import presenter.VolleyCallback;
@@ -119,7 +120,10 @@ public class DirctScheduleFragment extends Fragment {
         GetData getData = new GetData(getActivity());
         scheduleTypeList = getData.scheduleTypeList();
 
-        String URL = Constant.URL + "Customer_Mapped?emp_gid=57&action=execmapping&Entity_gid=1";
+        String URL = Constant.URL + "Customer_Mapped?emp_gid=" + UserDetails.getUser_id();
+        URL += "&action=execmapping";
+        URL += "&Entity_gid=" + UserDetails.getEntity_gid();
+
         CallbackHandler.sendReqest(getContext(), Request.Method.GET, "", URL, new VolleyCallback() {
 
 
@@ -174,7 +178,12 @@ public class DirctScheduleFragment extends Fragment {
             @Override
             public void onFailure(String result) {
 
-                Log.e("Login", result);
+                Log.e("DirectSchecule", result);
+            }
+
+            @Override
+            public List<Variables.Product> onAutoComplete(String result) {
+                return null;
             }
         });
 
@@ -198,6 +207,7 @@ public class DirctScheduleFragment extends Fragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Schedule For");
+        //builder.setCancelable(false);
         View customView = LayoutInflater.from(getActivity()).inflate(R.layout.alert_dialog_list, null, false);
         scheduleForAdapter = new ScheduleForAdapter(getContext(), R.layout.item_schedule_for, scheduleTypeList);
         listView = (ListView) customView.findViewById(R.id.listView_dialog);
@@ -207,11 +217,24 @@ public class DirctScheduleFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Variables.ScheduleType scheduleType = scheduleTypeList.get(position);
                 sessiondata.putInt("scheduletype_id", scheduleType.schedule_type_id);
-                Intent intent = new Intent(getActivity(), SalesActivity.class);
-                intent.putExtras(sessiondata);
-                startActivity(intent);
-                Toast.makeText(getContext(), "" + "Name: " + scheduleType.getSchedule_type_name(), Toast.LENGTH_LONG).show();
+                Class aClass = null;
+                switch (scheduleType.schedule_type_name) {
+                    case "BOOKING":
+                        aClass = SalesActivity.class;
+                        break;
+                    case "COLLECTION":
+                        break;
+                }
+                if (aClass != null) {
+                    Intent intent = new Intent(getActivity(), aClass);
+                    intent.putExtras(sessiondata);
+                    startActivity(intent);
+
+                } else {
+                    Toast.makeText(getContext(), "This Module implement into new version.", Toast.LENGTH_LONG).show();
+                }
                 alertDialog.cancel();
+
             }
         });
         builder.setView(customView);

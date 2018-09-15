@@ -1,5 +1,7 @@
 package models;
 
+
+
 public class Variables {
     public static class Menulist {
         public int Menu_gid;
@@ -50,8 +52,36 @@ public class Variables {
         public int getSchedule_type_id() {
             return schedule_type_id;
         }
+    }
+
+    public static class FollowupReason {
+        public String followup_name;
+        public int followup_id;
+
+        public String getFollowup_name() {
+            return followup_name;
+        }
+
+        public int getFollowup_id() {
+            return followup_id;
+        }
 
 
 
+    }
+
+    public static class Location{
+        public double latlong_lat;
+        public double latlong_long;
+        public int emp_gid;
+        public String latlong_date;
+        public int latlong_gid;
+        public int entity_gid;
+    }
+
+    public static class Product{
+        public int product_id;
+        public String product_name;
+        public String product_code;
     }
 }

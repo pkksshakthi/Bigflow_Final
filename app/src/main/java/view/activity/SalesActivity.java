@@ -61,7 +61,7 @@ public class SalesActivity extends AppCompatActivity {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new Sales_order(), "Sales");
         adapter.addFragment(new Promise_tobuy(), "P2B");
-        adapter.addFragment(new Sales_others(), "others");
+        //adapter.addFragment(new Sales_others(), "others");
 
 
         viewPager.setAdapter(adapter);

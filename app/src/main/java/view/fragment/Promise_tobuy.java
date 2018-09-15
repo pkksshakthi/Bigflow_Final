@@ -19,6 +19,7 @@ import models.UserDetails;
 import com.android.volley.Request;
 import com.vsolv.bigflow.R;
 
+import models.Variables;
 import network.CallbackHandler;
 
 import presenter.VolleyCallback;
@@ -27,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.List;
 
 import static java.lang.Integer.parseInt;
 
@@ -81,9 +83,9 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
 
         } else if (view == remark_submit) {
             if (Remark_date != null && remark_text.getText().toString() !="") {
-                customer_details = getActivity().getIntent().getExtras();
 
                 if (getActivity().getIntent() != null) {
+                    customer_details = getActivity().getIntent().getExtras();
                     customer_gid = customer_details.getInt("customer_id");
                     schedule_type_gid = customer_details.getInt("scheduletype_id");
                 }
@@ -158,6 +160,11 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
 
                                         Log.e("Followup_Remark_p2b", result);
                                     }
+
+                                    @Override
+                                    public List<Variables.Product> onAutoComplete(String result) {
+                                        return null;
+                                    }
                                 });
                             } else {
                                 Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG).show();
@@ -171,6 +178,11 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
                     public void onFailure(String result) {
 
                         Log.e("Remark", result);
+                    }
+
+                    @Override
+                    public List<Variables.Product> onAutoComplete(String result) {
+                        return null;
                     }
                 });
             } else {

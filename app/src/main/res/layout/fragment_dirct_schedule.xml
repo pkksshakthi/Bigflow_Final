@@ -2,27 +2,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/backgroud"
     android:orientation="vertical"
     tools:context="view.fragment.DirctScheduleFragment">
 
-    <EditText
-        android:id="@+id/customer_search"
+    <android.support.v7.widget.CardView
+        app:cardCornerRadius="3dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:drawableRight="@drawable/ic_action_search"
-        android:inputType="text"
-        android:hint="@string/search"/>
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp">
+
+        <EditText
+            android:id="@+id/customer_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/ic_action_search"
+            android:hint="@string/search"
+            android:inputType="text" />
+    </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/customerRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_margin="5dp"/>
 
     <TextView
         android:id="@+id/empty_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:visibility="gone"
-        android:text="@string/no_data_available" />
+        android:text="@string/no_data_available"
+        android:visibility="gone" />
 </LinearLayout>

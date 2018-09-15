@@ -37,6 +37,7 @@ public class CallbackHandler {
             @Override
             public void onResponse(String response) {
                 success.onSuccess(response);
+                success.onAutoComplete(response);
 
 
             }

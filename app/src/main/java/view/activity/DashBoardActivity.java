@@ -1,6 +1,7 @@
 package view.activity;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -37,6 +38,7 @@ import java.util.Map;
 import models.CustomExpandableListAdapter;
 import models.ExpandableListDataSource;
 import models.FragmentNavigationManager;
+import models.LocationSync;
 import models.UserDetails;
 import network.ConnectivityReceiver;
 import network.LocationService;
@@ -146,7 +148,8 @@ public class DashBoardActivity extends AppCompatActivity {
         }
     }
 
-    public void dataSynchronize() {
+    public  void dataSynchronize() {
+        String out_message =  LocationSync.LatLongSet(DashBoardActivity.this);
     }
 
     private void fabButtonDetails() {
@@ -294,6 +297,7 @@ public class DashBoardActivity extends AppCompatActivity {
             android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(android.R.anim.fade_in,
                     android.R.anim.fade_out);
+            transaction.addToBackStack("test");
             transaction.replace(R.id.content_frame, fragment, "example");
             transaction.commitAllowingStateLoss();
         }
