@@ -12,7 +12,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -71,7 +73,7 @@ public class DashBoardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
-
+        Log.v("Test","onCreate");
         session = new UserSessionManager(getApplicationContext());
         connectivityReceiver = new ConnectivityReceiver();
 
@@ -111,7 +113,22 @@ public class DashBoardActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), LocationService.class);
             startService(intent);
         }
-        setFragment(selectFragment(""));
+        if (getFragmentManager().findFragmentById(R.id.content_frame) == null) {
+            setFragment(selectFragment(""));
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.v("Test","onDestroy");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.v("Test","onRestart");
     }
 
     private void checkLocationPermission() {
@@ -192,18 +209,20 @@ public class DashBoardActivity extends AppCompatActivity {
         mIntentFilter.addAction("restarting.services");
         mIntentFilter.addAction("android.intent.action.BOOT_COMPLETED");
         registerReceiver(connectivityReceiver, mIntentFilter);
+        Log.v("Test","onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(connectivityReceiver);
+        Log.v("Test","onPause");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-
+        Log.v("Test","onStop");
     }
 
     @Override
@@ -212,6 +231,12 @@ public class DashBoardActivity extends AppCompatActivity {
             drawer.closeDrawer(GravityCompat.START);
         } else {
 
+            super.onBackPressed();
+        }
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1){
+            finish();
+        }
+        else {
             super.onBackPressed();
         }
     }
@@ -226,6 +251,7 @@ public class DashBoardActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.v("Test","onStart");
 
     }
 
@@ -293,11 +319,15 @@ public class DashBoardActivity extends AppCompatActivity {
 
     public void setFragment(Fragment fragment) {
         if (fragment != null) {
-
-            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            String backStateName = fragment.getClass().getName();
+            FragmentManager fm =  getSupportFragmentManager();
+            android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
             transaction.setCustomAnimations(android.R.anim.fade_in,
                     android.R.anim.fade_out);
-            transaction.addToBackStack("test");
+            transaction.addToBackStack(backStateName);
+            for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+                fm.popBackStack();
+            }
             transaction.replace(R.id.content_frame, fragment, "example");
             transaction.commitAllowingStateLoss();
         }
@@ -318,6 +348,6 @@ public class DashBoardActivity extends AppCompatActivity {
         }
         return fragment;
     }
-
+   
 
 }
