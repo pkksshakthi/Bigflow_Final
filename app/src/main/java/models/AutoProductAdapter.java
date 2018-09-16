@@ -46,7 +46,7 @@ public class AutoProductAdapter extends ArrayAdapter implements Filterable {
     @Override
     public int getCount() {
         // Last item will be the footer
-        Log.v("productList.size()",""+productList.size());
+        Log.v("productList.size()", "" + productList.size());
         return productList.size();
     }
 
@@ -64,25 +64,18 @@ public class AutoProductAdapter extends ArrayAdapter implements Filterable {
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
                 if (constraint != null) {
-                    Log.v("constraint.toString()",""+constraint.toString());
-                    productList = GetData.productList(constraint.toString());
-                    Log.v("FilterResults",""+productList);
-
+                    filterResults.values = productList;
+                    filterResults.count = productList.size();
                 }
+
 
                 return filterResults;
             }
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null ) {
+                if (results != null && (results.count > 0)) {
                     notifyDataSetChanged();
-                    results.values = productList;
-                    results.count = productList.size();
-                    Log.v("productList",""+productList);
-                    Log.v("productList.size()1",""+productList.size());
-//                    Log.v("results",""+results.values.toString());
-                    //
                 } else {
                     notifyDataSetInvalidated();
                 }
@@ -91,4 +84,8 @@ public class AutoProductAdapter extends ArrayAdapter implements Filterable {
         return filter;
     }
 
+    public void setData(List<Variables.Product> products) {
+        productList = products;
+        productList.addAll(products);
+    }
 }

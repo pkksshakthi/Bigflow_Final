@@ -25,6 +25,30 @@ public class CallbackHandler {
     static Context mContext;
     private static StringRequest mStringRequest;
     private static RequestQueue mRequestQueue;
+    private static CallbackHandler mInstance;
+
+    public CallbackHandler(Context ctx) {
+        mContext = ctx;
+        mRequestQueue = getRequestQueue();
+    }
+
+    public RequestQueue getRequestQueue() {
+        if (mRequestQueue == null) {
+            mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
+        }
+        return mRequestQueue;
+    }
+
+    public <T> void addToRequestQueue(Request<T> req) {
+        getRequestQueue().add(req);
+    }
+
+    public static synchronized CallbackHandler getInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new CallbackHandler(context);
+        }
+        return mInstance;
+    }
 
     public static RequestQueue sendReqest(final Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
 
@@ -74,6 +98,8 @@ public class CallbackHandler {
                 return headers;
             }
         };
-        mRequestQueue.add(mStringRequest);
+        CallbackHandler.getInstance(mContext).addToRequestQueue(mStringRequest);
+        //  mRequestQueue.add(mStringRequest);
         return mRequestQueue;
-    }}
+    }
+}

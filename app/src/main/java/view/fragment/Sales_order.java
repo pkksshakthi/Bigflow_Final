@@ -8,7 +8,12 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -35,6 +40,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import DataBase.GetData;
 import constant.Constant;
 import models.AutoProductAdapter;
 import models.Variables;
@@ -46,7 +52,9 @@ public class Sales_order extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private static final int TRIGGER_AUTO_COMPLETE = 100;
+    private static final long AUTO_COMPLETE_DELAY = 300;
+    private Handler handler;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -101,8 +109,53 @@ public class Sales_order extends Fragment {
         auto_product = rootView.findViewById(R.id.auto_product);
         auto_product.setThreshold(1);
         auto_product.setOnItemClickListener(autoItemClickListener);
-        AutoProductAdapter autoProductAdapter =new AutoProductAdapter(getActivity(),R.layout.item_product);
+        final AutoProductAdapter autoProductAdapter = new AutoProductAdapter(getActivity(), R.layout.item_product);
         auto_product.setAdapter(autoProductAdapter);
+
+
+        auto_product.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        // selectedText.setText(autoSuggestAdapter.getObject(position));
+                    }
+                });
+
+        auto_product.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int
+                    count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+                handler.removeMessages(TRIGGER_AUTO_COMPLETE);
+                handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
+                        AUTO_COMPLETE_DELAY);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        handler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (msg.what == TRIGGER_AUTO_COMPLETE) {
+                    if (!TextUtils.isEmpty(auto_product.getText())) {
+                        // makeApiCall(autoCompleteTextView.getText().toString());
+                        GetData.productList(auto_product.getText().toString());
+                        autoProductAdapter.setData(GetData.productList(auto_product.getText().toString()));
+                       // autoProductAdapter.notifyDataSetChanged();
+                    }
+                }
+                return false;
+            }
+        });
         tableLayout = (TableLayout) rootView.findViewById(R.id.tbl_layout);
         load_favProduct();
         return rootView;
@@ -111,7 +164,7 @@ public class Sales_order extends Fragment {
     private AdapterView.OnItemClickListener autoItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Toast.makeText(getContext(),""+position,Toast.LENGTH_SHORT);
+            Toast.makeText(getContext(), "" + position, Toast.LENGTH_SHORT);
         }
     };
 
