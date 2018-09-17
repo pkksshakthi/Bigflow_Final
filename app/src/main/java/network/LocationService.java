@@ -1,15 +1,18 @@
 package network;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -43,7 +46,7 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onCreate() {
-        Log.e("test","onCreate");
+        Log.e("test", "onCreate");
         super.onCreate();
         mHandler = new Handler();
         mTimer = new Timer();
@@ -84,57 +87,66 @@ public class LocationService extends Service implements LocationListener {
         }
     }
 
-    @SuppressLint("MissingPermission")
     private void fn_getlocation() {
         Boolean isGPSEnable, isNetworkEnable;
         double latitude, longitude;
-        Log.v("Services", "fn_getlocation");
+
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         isGPSEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         isNetworkEnable = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        if (!isGPSEnable && !isNetworkEnable) {
-
-        } else {
+        if (isGPSEnable && isNetworkEnable) {
             location = null;
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
-            if (locationManager != null) {
-                if (isNetworkEnable) {
-                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Enable the GPS access", Toast.LENGTH_LONG).show();
+                return;
+            } else {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
+
+                if (locationManager != null) {
+                    if (isNetworkEnable) {
+                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    }
                 } else {
-                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+                    if (locationManager != null) {
+                        if (isNetworkEnable) {
+                            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        }
+                    }
+
+
                 }
+
+                setLatLong(location);
             }
-//            Log.e("latitude",location.getLatitude()+"");
-//            Log.e("longitude",location.getLongitude()+"");
-//            latitude = location.getLatitude();
-//            longitude = location.getLongitude();
-            setLatLong(location);
         }
 
     }
 
     private void setLatLong(Location location) {
-        DataBaseHandler dataBaseHandler = new DataBaseHandler(LocationService.this);
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put(Constant.latitude,location.getLatitude());
-        contentValues.put(Constant.longitude,location.getLongitude());
-        contentValues.put(Constant.latlong_date, Common.convertDateString(new Date(),"yyyy-MM-dd HH:mm:ss"));
-        contentValues.put(Constant.latlong_emp_gid, UserDetails.getUser_id());
-
-        String Out_Message = dataBaseHandler.Insert("fet_trn_tlatlong",contentValues);
-//        String Out_Message = "ss";
-
-        if (!"SUCCESS".equals(Out_Message) ){
-            Toast.makeText(getApplicationContext(),"Error.:"+"Error On Lat Long Save. ",Toast.LENGTH_LONG).show();
+        if (location != null) {
+            Log.v("getLatitude", "" + location.getLatitude());
+            Log.v("getLongitude", "" + location.getLongitude());
+            DataBaseHandler dataBaseHandler = new DataBaseHandler(LocationService.this);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(Constant.latitude, location.getLatitude());
+            contentValues.put(Constant.longitude, location.getLongitude());
+            contentValues.put(Constant.latlong_date, Common.convertDateString(new Date(), "yyyy-MM-dd HH:mm:ss"));
+            contentValues.put(Constant.latlong_emp_gid, UserDetails.getUser_id());
+            String Out_Message = dataBaseHandler.Insert("fet_trn_tlatlong", contentValues);
+            if (!"SUCCESS".equals(Out_Message)) {
+                Toast.makeText(getApplicationContext(), "Error.:" + "Error On Lat Long Save. ", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getApplicationContext(), "Error.:" + "Error On Lat Long ", Toast.LENGTH_LONG).show();
         }
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
-        Log.e("test","onTaskRemoved");
+        Log.e("test", "onTaskRemoved");
         Intent broadcastIntent = new Intent("restarting.services");
         sendBroadcast(broadcastIntent);
     }
@@ -142,7 +154,7 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.e("test","onDestroy");
+        Log.e("test", "onDestroy");
         Intent broadcastIntent = new Intent("restarting.services");
         sendBroadcast(broadcastIntent);
     }

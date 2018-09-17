@@ -1,12 +1,16 @@
 package view.activity;
 
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,7 +78,7 @@ public class DashBoardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
-        Log.v("Test","onCreate");
+        Log.v("Test", "onCreate");
         session = new UserSessionManager(getApplicationContext());
         connectivityReceiver = new ConnectivityReceiver();
 
@@ -106,6 +111,7 @@ public class DashBoardActivity extends AppCompatActivity {
         });
 
 
+
         //location service
 
         checkLocationPermission();
@@ -119,16 +125,38 @@ public class DashBoardActivity extends AppCompatActivity {
 
     }
 
+    private void locationOn() {
+        // Get Location Manager and check for GPS & Network location services
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            // Build the alert dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Location Services Not Active");
+            builder.setMessage("Please enable Location Services and GPS");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    // Show location settings when the user acknowledges the alert dialog
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.v("Test","onDestroy");
+        Log.v("Test", "onDestroy");
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.v("Test","onRestart");
+        Log.v("Test", "onRestart");
     }
 
     private void checkLocationPermission() {
@@ -165,8 +193,8 @@ public class DashBoardActivity extends AppCompatActivity {
         }
     }
 
-    public  void dataSynchronize() {
-        String out_message =  LocationSync.LatLongSet(DashBoardActivity.this);
+    public void dataSynchronize() {
+        String out_message = LocationSync.LatLongSet(DashBoardActivity.this);
     }
 
     private void fabButtonDetails() {
@@ -209,20 +237,20 @@ public class DashBoardActivity extends AppCompatActivity {
         mIntentFilter.addAction("restarting.services");
         mIntentFilter.addAction("android.intent.action.BOOT_COMPLETED");
         registerReceiver(connectivityReceiver, mIntentFilter);
-        Log.v("Test","onResume");
+        Log.v("Test", "onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(connectivityReceiver);
-        Log.v("Test","onPause");
+        Log.v("Test", "onPause");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.v("Test","onStop");
+        Log.v("Test", "onStop");
     }
 
     @Override
@@ -233,10 +261,9 @@ public class DashBoardActivity extends AppCompatActivity {
 
             super.onBackPressed();
         }
-        if (getSupportFragmentManager().getBackStackEntryCount() == 1){
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
             finish();
-        }
-        else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -251,7 +278,8 @@ public class DashBoardActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Log.v("Test","onStart");
+        locationOn();
+        Log.v("Test", "onStart");
 
     }
 
@@ -320,12 +348,12 @@ public class DashBoardActivity extends AppCompatActivity {
     public void setFragment(Fragment fragment) {
         if (fragment != null) {
             String backStateName = fragment.getClass().getName();
-            FragmentManager fm =  getSupportFragmentManager();
+            FragmentManager fm = getSupportFragmentManager();
             android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
             transaction.setCustomAnimations(android.R.anim.fade_in,
                     android.R.anim.fade_out);
             transaction.addToBackStack(backStateName);
-            for(int i = 0; i < fm.getBackStackEntryCount(); ++i) {
+            for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
                 fm.popBackStack();
             }
             transaction.replace(R.id.content_frame, fragment, "example");
@@ -348,6 +376,6 @@ public class DashBoardActivity extends AppCompatActivity {
         }
         return fragment;
     }
-   
+
 
 }
