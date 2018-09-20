@@ -2,12 +2,10 @@ package view.activity;
 
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -16,13 +14,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewParent;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -42,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import models.Common;
 import models.CustomExpandableListAdapter;
 import models.ExpandableListDataSource;
 import models.FragmentNavigationManager;
@@ -54,6 +51,7 @@ import presenter.UserSessionManager;
 import view.fragment.AboutFragment;
 import view.fragment.DirctScheduleFragment;
 import view.fragment.ProfileFragment;
+import view.fragment.SynchronizeFragment;
 
 
 public class DashBoardActivity extends AppCompatActivity {
@@ -78,7 +76,7 @@ public class DashBoardActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
-        Log.v("Test", "onCreate");
+
         session = new UserSessionManager(getApplicationContext());
         connectivityReceiver = new ConnectivityReceiver();
 
@@ -106,57 +104,24 @@ public class DashBoardActivity extends AppCompatActivity {
         connectivityReceiver.setConnectivityReceiver(new ConnectivityReceiver.ConnectivityReceiverListener() {
             @Override
             public void onNetworkConnectionChanged(boolean isConnected) {
-                dataSynchronize();
+                if (isConnected) {
+                    dataSynchronize();
+                } else {
+                    View view = findViewById(R.id.content_frame);
+                    Common.showSnackbar_warning(getApplicationContext(),view,"You are offline");
+                }
             }
         });
 
-
-
-        //location service
-
         checkLocationPermission();
+
         if (boolean_permission_location) {
             Intent intent = new Intent(getApplicationContext(), LocationService.class);
             startService(intent);
         }
         if (getFragmentManager().findFragmentById(R.id.content_frame) == null) {
-            setFragment(selectFragment(""));
+            setFragment(selectFragment(""), false);
         }
-
-    }
-
-    private void locationOn() {
-        // Get Location Manager and check for GPS & Network location services
-        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            // Build the alert dialog
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Location Services Not Active");
-            builder.setMessage("Please enable Location Services and GPS");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    // Show location settings when the user acknowledges the alert dialog
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivity(intent);
-                }
-            });
-            Dialog alertDialog = builder.create();
-            alertDialog.setCanceledOnTouchOutside(false);
-            alertDialog.show();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.v("Test", "onDestroy");
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.v("Test", "onRestart");
     }
 
     private void checkLocationPermission() {
@@ -197,6 +162,28 @@ public class DashBoardActivity extends AppCompatActivity {
         String out_message = LocationSync.LatLongSet(DashBoardActivity.this);
     }
 
+    private void checkLocationOn() {
+
+        LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+            // Build the alert dialog
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Location Services Not Active");
+            builder.setMessage("Please enable Location Services and GPS");
+            builder.setCancelable(false);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        }
+    }
+
     private void fabButtonDetails() {
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -221,7 +208,7 @@ public class DashBoardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Fragment fragment = new ProfileFragment();
-                setFragment(fragment);
+                setFragment(fragment, true);
             }
         });
 
@@ -237,20 +224,18 @@ public class DashBoardActivity extends AppCompatActivity {
         mIntentFilter.addAction("restarting.services");
         mIntentFilter.addAction("android.intent.action.BOOT_COMPLETED");
         registerReceiver(connectivityReceiver, mIntentFilter);
-        Log.v("Test", "onResume");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(connectivityReceiver);
-        Log.v("Test", "onPause");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Log.v("Test", "onStop");
+
     }
 
     @Override
@@ -259,11 +244,6 @@ public class DashBoardActivity extends AppCompatActivity {
             drawer.closeDrawer(GravityCompat.START);
         } else {
 
-            super.onBackPressed();
-        }
-        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
-            finish();
-        } else {
             super.onBackPressed();
         }
     }
@@ -278,9 +258,7 @@ public class DashBoardActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        locationOn();
-        Log.v("Test", "onStart");
-
+        checkLocationOn();
     }
 
     @Override
@@ -289,9 +267,9 @@ public class DashBoardActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            setFragment(new AboutFragment());
+            setFragment(new SynchronizeFragment(), true);
         } else if (id == R.id.action_about) {
-            setFragment(new AboutFragment());
+            setFragment(new AboutFragment(), true);
         } else if (id == R.id.action_logout) {
             session.logoutUser();
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
@@ -325,7 +303,7 @@ public class DashBoardActivity extends AppCompatActivity {
                                         int groupPosition, int childPosition, long id) {
                 String selectedItem = ((List) (mExpandableListData.get(mExpandableListTitle.get(groupPosition))))
                         .get(childPosition).toString();
-                setFragment(selectFragment(selectedItem));
+                setFragment(selectFragment(selectedItem), true);
                 return false;
             }
         });
@@ -336,7 +314,7 @@ public class DashBoardActivity extends AppCompatActivity {
                 int childCount = adapter.getChildrenCount(groupPosition);
                 if (childCount == 0) {
                     String selectedItem = mExpandableListTitle.get(childCount).toString();
-                    setFragment(selectFragment(selectedItem));
+                    setFragment(selectFragment(selectedItem), true);
                 }
                 return false;
             }
@@ -345,17 +323,14 @@ public class DashBoardActivity extends AppCompatActivity {
 
     }
 
-    public void setFragment(Fragment fragment) {
+    public void setFragment(Fragment fragment, Boolean addHistory) {
         if (fragment != null) {
-            String backStateName = fragment.getClass().getName();
-            FragmentManager fm = getSupportFragmentManager();
-            android.support.v4.app.FragmentTransaction transaction = fm.beginTransaction();
+
+            android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(android.R.anim.fade_in,
                     android.R.anim.fade_out);
-            transaction.addToBackStack(backStateName);
-            for (int i = 0; i < fm.getBackStackEntryCount(); ++i) {
-                fm.popBackStack();
-            }
+            if (addHistory)
+                transaction.addToBackStack("fragment");
             transaction.replace(R.id.content_frame, fragment, "example");
             transaction.commitAllowingStateLoss();
         }

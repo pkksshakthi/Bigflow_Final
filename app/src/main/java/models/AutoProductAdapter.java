@@ -14,13 +14,22 @@ import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.Request;
 import com.vsolv.bigflow.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import DataBase.GetData;
+import constant.Constant;
+import network.CallbackHandler;
+import presenter.VolleyCallback;
 
-public class AutoProductAdapter extends ArrayAdapter implements Filterable {
+public class AutoProductAdapter extends ArrayAdapter {
 
     private final Context _Context;
     private final int _resource;
@@ -46,46 +55,68 @@ public class AutoProductAdapter extends ArrayAdapter implements Filterable {
     @Override
     public int getCount() {
         // Last item will be the footer
-        Log.v("productList.size()", "" + productList.size());
         return productList.size();
     }
 
     @Override
-    public Variables.Product getItem(int position) {
+    public String getItem(int position) {
+        return productList.get(position).product_name;
+    }
+
+    public Variables.Product getSelectedItem(int position) {
         return productList.get(position);
     }
 
-    @NonNull
-    @Override
-    public Filter getFilter() {
-        Filter filter = new Filter() {
-
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                FilterResults filterResults = new FilterResults();
-                if (constraint != null) {
-                    filterResults.values = productList;
-                    filterResults.count = productList.size();
-                }
-
-
-                return filterResults;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null && (results.count > 0)) {
-                    notifyDataSetChanged();
-                } else {
-                    notifyDataSetInvalidated();
-                }
-            }
-        };
-        return filter;
+    public void productfilter(String product_name, ArrayList<Integer> favProduct) {
+        if (product_name != null) {
+            changeAdapder(product_name, favProduct);
+        }
     }
 
-    public void setData(List<Variables.Product> products) {
-        productList = products;
-        productList.addAll(products);
+    private void changeAdapder(final String product_name, final ArrayList<Integer> favProduct) {
+        final List<Variables.Product> mProductlist = new ArrayList<>();
+        String URL = Constant.URL + "Product_Sales?";
+        URL = URL + "&Product_Name=" + product_name + "&Limit=10&Entity_gid=" + UserDetails.getEntity_gid();
+
+        CallbackHandler.sendReqest(_Context, Request.Method.GET, "", URL, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String message = jsonObject.getString("MESSAGE");
+                    if (message.equals("FOUND")) {
+                        JSONArray jsonArray = jsonObject.getJSONArray("DATA");
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj_json = jsonArray.getJSONObject(i);
+                            Variables.Product product = new Variables.Product();
+                            product.product_id = obj_json.getInt("product_gid");
+                            product.product_name = obj_json.getString("product_displayname");
+                            if (favProduct.indexOf(product.product_id) < 0)
+                                mProductlist.add(product);
+                        }
+                        productList = mProductlist;
+                        notifyDataSetChanged();
+
+                    } else {
+                        notifyDataSetInvalidated();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    notifyDataSetInvalidated();
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(String result) {
+                notifyDataSetInvalidated();
+                Log.e("Getdata-scheduletype", result);
+            }
+        });
+
     }
 }

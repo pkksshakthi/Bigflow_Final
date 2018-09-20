@@ -3,15 +3,9 @@ package network;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import android.widget.Toast;
-
-import presenter.VolleyCallback;
-
-import static android.content.Context.LOCATION_SERVICE;
 
 public class ConnectivityReceiver
         extends BroadcastReceiver {
@@ -32,14 +26,9 @@ public class ConnectivityReceiver
             NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
             boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
             if (listener != null) {
-                if (isConnected) {
-                    Toast.makeText(context, "Connected", Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(context, "Disconnected", Toast.LENGTH_LONG).show();
-                }
                 listener.onNetworkConnectionChanged(isConnected);
             }
-        }  
+        }
 
     }
 

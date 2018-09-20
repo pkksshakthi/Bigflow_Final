@@ -27,13 +27,13 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
     }
 
     public class CustomerViewHolder extends RecyclerView.ViewHolder {
-        TextView customerName, locationName, textViewRating;
+        TextView customerName, locationName, txtCustViewDetails;
 
         public CustomerViewHolder(View itemView, final OnItemClickListener listener) {
             super(itemView);
             customerName = itemView.findViewById(R.id.txtCustomerName);
             locationName = itemView.findViewById(R.id.txtLocationName);
-            textViewRating = itemView.findViewById(R.id.textViewRating);
+            txtCustViewDetails = itemView.findViewById(R.id.txtCustViewDetails);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -46,7 +46,7 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
                 }
             });
-            textViewRating.setOnClickListener(new View.OnClickListener() {
+            txtCustViewDetails.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (listener!=null){
@@ -80,7 +80,7 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
         holder.customerName.setText(customer.getCust_name());
         holder.locationName.setText(customer.getCust_location());
-        holder.textViewRating.setText(String.valueOf(customer.getCust_gid()));
+        holder.txtCustViewDetails.setText("View Details");
     }
 
     @Override

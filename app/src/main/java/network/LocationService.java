@@ -1,18 +1,15 @@
 package network;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -87,60 +84,53 @@ public class LocationService extends Service implements LocationListener {
         }
     }
 
+    @SuppressLint("MissingPermission")
     private void fn_getlocation() {
         Boolean isGPSEnable, isNetworkEnable;
-        double latitude, longitude;
 
+        location = null;
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         isGPSEnable = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         isNetworkEnable = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
-        if (isGPSEnable && isNetworkEnable) {
-            location = null;
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Enable the GPS access", Toast.LENGTH_LONG).show();
-                return;
+        if (!isGPSEnable && !isNetworkEnable) {
+            Toast.makeText(this, "Enable the GPS access", Toast.LENGTH_LONG).show();
+            return;
+        } else {
+
+            if (isNetworkEnable) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 500, this);
+                location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             } else {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 0, this);
-
-                if (locationManager != null) {
-                    if (isNetworkEnable) {
-                        location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    }
-                } else {
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
-                    if (locationManager != null) {
-                        if (isNetworkEnable) {
-                            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        }
-                    }
-
-
-                }
-
-                setLatLong(location);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 500, this);
+                location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             }
+
+            setLatLong(location);
+
         }
 
     }
 
     private void setLatLong(Location location) {
+
         if (location != null) {
-            Log.v("getLatitude", "" + location.getLatitude());
-            Log.v("getLongitude", "" + location.getLongitude());
             DataBaseHandler dataBaseHandler = new DataBaseHandler(LocationService.this);
             ContentValues contentValues = new ContentValues();
             contentValues.put(Constant.latitude, location.getLatitude());
             contentValues.put(Constant.longitude, location.getLongitude());
-            contentValues.put(Constant.latlong_date, Common.convertDateString(new Date(), "yyyy-MM-dd HH:mm:ss"));
+            contentValues.put(Constant.latlong_date, Common.convertDateString(new Date(),"yyyy-MM-dd HH:mm:ss"));
             contentValues.put(Constant.latlong_emp_gid, UserDetails.getUser_id());
+            contentValues.put(Constant.entity_gid, UserDetails.getEntity_gid());
+
             String Out_Message = dataBaseHandler.Insert("fet_trn_tlatlong", contentValues);
+
             if (!"SUCCESS".equals(Out_Message)) {
-                Toast.makeText(getApplicationContext(), "Error.:" + "Error On Lat Long Save. ", Toast.LENGTH_LONG).show();
+                Log.e("Error", "Error On Lat Long Save.");
             }
-        } else {
-            Toast.makeText(getApplicationContext(), "Error.:" + "Error On Lat Long ", Toast.LENGTH_LONG).show();
+
         }
+
     }
 
     @Override

@@ -117,7 +117,7 @@ public class LoginActivity extends Activity {
         String URL = Constant.URL + "login/";
 
 
-        CallbackHandler.sendReqest(getApplicationContext(), Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
+        CallbackHandler.sendReqest(LoginActivity.this, Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
                 Log.e("result", result);
@@ -145,11 +145,6 @@ public class LoginActivity extends Activity {
                 //pd.hide();
                 Log.e("Login", result);
                 setVisibility(View.VISIBLE, View.GONE);
-            }
-
-            @Override
-            public List<Variables.Product> onAutoComplete(String result) {
-                return null;
             }
         });
     }

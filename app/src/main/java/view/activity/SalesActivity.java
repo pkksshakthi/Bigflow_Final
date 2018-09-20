@@ -51,9 +51,11 @@ public class SalesActivity extends AppCompatActivity {
             customer_details = getIntent().getExtras();
             customer_gid = customer_details.getInt("customer_id");
             schedule_type_gid = customer_details.getInt("scheduletype_id");
-
+            Bundle data =new Bundle();
+            data.putInt("customer_gid",customer_gid);
+            Fragment fragment=new Sales_order();
+            fragment.setArguments(data);
         }
-
 
     }
 
@@ -62,7 +64,6 @@ public class SalesActivity extends AppCompatActivity {
         adapter.addFragment(new Sales_order(), "Sales");
         adapter.addFragment(new Promise_tobuy(), "P2B");
         //adapter.addFragment(new Sales_others(), "others");
-
 
         viewPager.setAdapter(adapter);
     }

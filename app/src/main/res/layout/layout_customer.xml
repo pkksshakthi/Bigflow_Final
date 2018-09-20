@@ -35,7 +35,7 @@
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small" />
 
             <TextView
-                android:id="@+id/textViewRating"
+                android:id="@+id/txtCustViewDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/txtLocationName"
@@ -44,7 +44,8 @@
                 android:background="@color/colorPrimary"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
-                android:text="4.7"
+                android:textColor="@color/colorWhite"
+                android:text="View Details"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Small.Inverse"
                 android:textStyle="bold" />
 

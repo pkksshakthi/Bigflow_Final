@@ -17,7 +17,8 @@ public class DBTables {
                             "  latlong_long double NOT NULL, " +
                             "  latlong_emp_gid INT NOT NULL, " +
                             "  latlong_date DATETIME NOT NULL, " +
-                            "  latlong_issync varchar(1) NOT NULL DEFAULT 'N' " +
+                            "  latlong_issync varchar(1) NOT NULL DEFAULT 'N', " +
+                            "  entity_gid INT NOT NULL " +
                             ") ";
 
 }

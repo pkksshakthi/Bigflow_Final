@@ -17,7 +17,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ import java.util.Map;
 
 import DataBase.GetData;
 import constant.Constant;
+import models.Common;
 import models.CustomerAdapter;
 import models.ScheduleForAdapter;
 import models.UserDetails;
@@ -43,25 +46,26 @@ import presenter.VolleyCallback;
 import view.activity.SalesActivity;
 
 
-public class DirctScheduleFragment extends Fragment {
+public class DirctScheduleFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_Title = "title";
     private static final String ARG_PARAM2 = "param2";
     EditText customerSearch;
     private RecyclerView recyclerView;
-    private TextView empty_view;
+    private TextView empty_view, reload;
     public CustomerAdapter adapter;
     private ArrayList<Variables.Customer> customerList;
 
     public ListView listView;
+    private LinearLayout linearLayout;
     public ScheduleForAdapter scheduleForAdapter;
     private List<Variables.ScheduleType> scheduleTypeList;
     private AlertDialog alertDialog;
     private Bundle sessiondata;
-    private String mParam1;
-    private String mParam2;
+    private String mParam1, mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private GetData getData;
 
     public DirctScheduleFragment() {
         // Required empty public constructor
@@ -90,11 +94,31 @@ public class DirctScheduleFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
-        sessiondata = new Bundle();
+        getActivity().setTitle("Bigflow");
         View view = inflater.inflate(R.layout.fragment_dirct_schedule, container, false);
+
+        loadView(view);
+        initializeView();
+        loadData();
+        return view;
+    }
+
+
+    private void loadView(View view) {
+        linearLayout = (LinearLayout) view.findViewById(R.id.linearDirect);
         recyclerView = (RecyclerView) view.findViewById(R.id.customerRecyclerView);
         empty_view = view.findViewById(R.id.empty_view);
         customerSearch = view.findViewById(R.id.customer_search);
+        reload = view.findViewById(R.id.custReload);
+    }
+
+    private void initializeView() {
+        sessiondata = new Bundle();
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
+        customerList = new ArrayList<>();
+        reload.setOnClickListener(this);
+        getData = new GetData(getActivity());
         customerSearch.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -111,20 +135,18 @@ public class DirctScheduleFragment extends Fragment {
                 filter(s.toString());
             }
         });
+    }
 
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
-        customerList = new ArrayList<>();
-
-        //Model dialog
-        GetData getData = new GetData(getActivity());
-        scheduleTypeList = getData.scheduleTypeList();
-
+    private void loadData() {
+        if (!Common.isOnline(getContext())) {
+            setVisibility(View.GONE, View.GONE, View.VISIBLE);
+            return;
+        }
         String URL = Constant.URL + "Customer_Mapped?emp_gid=" + UserDetails.getUser_id();
         URL += "&action=execmapping";
         URL += "&Entity_gid=" + UserDetails.getEntity_gid();
 
-        CallbackHandler.sendReqest(getContext(), Request.Method.GET, "", URL, new VolleyCallback() {
+        CallbackHandler.sendReqest(getActivity(), Request.Method.GET, "", URL, new VolleyCallback() {
 
 
             @Override
@@ -133,7 +155,7 @@ public class DirctScheduleFragment extends Fragment {
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("MESSAGE");
-                    adapter = new CustomerAdapter(getActivity(), customerList);
+
                     if (message.equals("FOUND")) {
                         JSONArray jsonArray = jsonObject.getJSONArray("DATA");
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -144,30 +166,9 @@ public class DirctScheduleFragment extends Fragment {
                             customerList.add(new Variables.Customer(display_name, location_name, customer_gid));
                         }
 
-                        recyclerView.setAdapter(adapter);
-
-                        createDialog();
-
-                        adapter.setOnclickListener(new CustomerAdapter.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(Variables.Customer item, int position) {
-                                sessiondata.putInt("customer_id", item.cust_gid);
-                                alertDialog.show();
-                            }
-
-                            @Override
-                            public void onViewDetailsClick(Variables.Customer item, int position) {
-                                Toast.makeText(getContext(), "" + position + "test", Toast.LENGTH_LONG).show();
-                            }
-                        });
+                        setAdapter();
                     }
-                    if (adapter.getItemCount() == 0) {
-                        recyclerView.setVisibility(View.GONE);
-                        empty_view.setVisibility(View.VISIBLE);
-                    } else {
-                        recyclerView.setVisibility(View.VISIBLE);
-                        empty_view.setVisibility(View.GONE);
-                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -181,21 +182,48 @@ public class DirctScheduleFragment extends Fragment {
                 Log.e("DirectSchecule", result);
             }
 
+        });
+    }
+
+    public void setAdapter() {
+
+        adapter = new CustomerAdapter(getActivity(), customerList);
+        recyclerView.setAdapter(adapter);
+
+
+        adapter.setOnclickListener(new CustomerAdapter.OnItemClickListener() {
             @Override
-            public List<Variables.Product> onAutoComplete(String result) {
-                return null;
+            public void onItemClick(Variables.Customer item, int position) {
+                sessiondata.putInt("customer_id", item.cust_gid);
+                getScheduleType(item.cust_gid);
+
+            }
+
+            @Override
+            public void onViewDetailsClick(Variables.Customer item, int position) {
+                Toast.makeText(getContext(), "This Module implement into new version.", Toast.LENGTH_LONG).show();
             }
         });
 
-        return view;
+        if (adapter.getItemCount() == 0) {
+            setVisibility(View.GONE, View.VISIBLE, View.GONE);
+        } else {
+            setVisibility(View.VISIBLE, View.GONE, View.GONE);
+        }
+    }
 
+
+    public void setVisibility(int recycleView, int emptyView, int reloadView) {
+        linearLayout.setVisibility(recycleView);
+        empty_view.setVisibility(emptyView);
+        reload.setVisibility(reloadView);
     }
 
     public void filter(String text) {
         List<Variables.Customer> temp = new ArrayList();
         for (Variables.Customer d : customerList) {
 
-            if (d.getCust_name().toLowerCase().contains(text.toLowerCase())) {
+            if (d.getCust_name().toLowerCase().replaceAll("\\s+", "").contains(text.toLowerCase().replaceAll("\\s+", ""))) {
                 temp.add(d);
             }
         }
@@ -203,11 +231,51 @@ public class DirctScheduleFragment extends Fragment {
         adapter.updateList(temp);
     }
 
+    public void getScheduleType(int customer_gid) {
+        scheduleTypeList=new ArrayList<>();
+        String URL = Constant.URL + "Schedule_Master?";
+        URL = URL + "&Action=SCHEDULE_TYPE&Entity_gid=" + UserDetails.getEntity_gid();
+
+        CallbackHandler.sendReqest(getContext(), Request.Method.GET, "", URL, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String message = jsonObject.getString("MESSAGE");
+                    if (message.equals("FOUND")) {
+                        JSONArray jsonArray = jsonObject.getJSONArray("DATA");
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj_json = jsonArray.getJSONObject(i);
+                            Variables.ScheduleType scheduleType = new Variables.ScheduleType();
+                            scheduleType.schedule_type_id = obj_json.getInt("scheduletype_gid");
+                            scheduleType.schedule_type_name = obj_json.getString("scheduletype_name");
+                            scheduleTypeList.add(scheduleType);
+                        }
+                        createDialog();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(String result) {
+
+                Log.e("Getdata-scheduletype", result);
+            }
+        });
+
+    }
+
     public void createDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Schedule For");
-        //builder.setCancelable(false);
         View customView = LayoutInflater.from(getActivity()).inflate(R.layout.alert_dialog_list, null, false);
         scheduleForAdapter = new ScheduleForAdapter(getContext(), R.layout.item_schedule_for, scheduleTypeList);
         listView = (ListView) customView.findViewById(R.id.listView_dialog);
@@ -239,11 +307,10 @@ public class DirctScheduleFragment extends Fragment {
         });
         builder.setView(customView);
         alertDialog = builder.create();
-
+        alertDialog.show();
     }
 
 
-    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
@@ -267,6 +334,15 @@ public class DirctScheduleFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.custReload:
+                loadData();
+                break;
+
+        }
+    }
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name

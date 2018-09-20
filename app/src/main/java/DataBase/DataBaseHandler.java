@@ -50,14 +50,23 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
         long i = sqLiteDatabase.insert(TableName, null, contentValues);
 
-        sqLiteDatabase.close();
         if (i >= 1) {
             return "SUCCESS";
         } else {
             return "FAIL";
         }
 
+    }
 
+    public String Update(String TableName,ContentValues contentValues,String WhereClause){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        long i = sqLiteDatabase.update(TableName,contentValues,WhereClause,null);
+
+        if (i >= 1) {
+            return "SUCCESS";
+        } else {
+            return "FAIL";
+        }
     }
 
 
@@ -115,16 +124,18 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         }
 
         SQLiteDatabase sqLiteDatabase = dataBaseHandler.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery("select latlong_gid,latlong_lat,latlong_long,latlong_date,latlong_emp_gid " +
+        Cursor cursor = sqLiteDatabase.rawQuery("select latlong_gid,latlong_lat,latlong_long,latlong_date,latlong_emp_gid,entity_gid " +
                 "from fet_trn_tlatlong where latlong_issync = 'N';",null);
         List<Variables.Location> list = new ArrayList<>();
         if (cursor.moveToFirst()){
             do{
              Variables.Location location = new Variables.Location();
+             location.latlong_gid = cursor.getInt(cursor.getColumnIndex("latlong_gid"));
              location.latlong_lat = cursor.getDouble(cursor.getColumnIndex("latlong_lat"));
              location.latlong_long = cursor.getDouble(cursor.getColumnIndex("latlong_long"));
              location.latlong_date = cursor.getString(cursor.getColumnIndex("latlong_date"));
              location.emp_gid = cursor.getInt(cursor.getColumnIndex("latlong_emp_gid"));
+             location.entity_gid = cursor.getInt(cursor.getColumnIndex("entity_gid"));
              list.add(location);
 
             }while (cursor.moveToNext());

@@ -84,4 +84,10 @@ public class Variables {
         public String product_name;
         public String product_code;
     }
+
+    public static class Sales{
+        public int sodetails_product_gid;
+        public double quantity;
+
+    }
 }

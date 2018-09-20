@@ -1,5 +1,6 @@
 package network;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ public class CallbackHandler {
     static Context mContext;
     private static StringRequest mStringRequest;
     private static RequestQueue mRequestQueue;
+    private static ProgressDialog progressDialog;
     private static CallbackHandler mInstance;
 
     public CallbackHandler(Context ctx) {
@@ -50,25 +52,32 @@ public class CallbackHandler {
         return mInstance;
     }
 
-    public static RequestQueue sendReqest(final Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
+    public static RequestQueue sendReqest(Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
 
-
+        // if (progressDialog==null){
+        progressDialog = new ProgressDialog(context);
+        //}
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
         mContext = context;
-
+        progressDialog.setTitle("Loading.." + context.getClass().toString());
+        progressDialog.setCancelable(false);
+        progressDialog.show();
         mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
 
         mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 success.onSuccess(response);
-                success.onAutoComplete(response);
-
+                progressDialog.dismiss();
 
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 success.onFailure(error.toString());
+                progressDialog.dismiss();
             }
 
         }) {
@@ -99,7 +108,8 @@ public class CallbackHandler {
             }
         };
         CallbackHandler.getInstance(mContext).addToRequestQueue(mStringRequest);
-        //  mRequestQueue.add(mStringRequest);
+        //mRequestQueue.add(mStringRequest);
+        progressDialog.dismiss();
         return mRequestQueue;
     }
 }

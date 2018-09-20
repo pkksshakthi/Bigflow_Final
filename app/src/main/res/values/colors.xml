@@ -10,7 +10,8 @@
     <color name="colorWhite">#f9f9f9</color>
     <color name="nav_divider_color">#778288</color>
     <color name="login_btn_color">#0587eb</color>
-    <color name="black">#a8afd3</color>
     <color name="shadow_color">#37000000</color>
     <color name="backgroud">#dceaf2</color>
+    <color name="warning">#ffab00</color>
+    <color name="success">#00c853</color>
 </resources>

@@ -2,6 +2,7 @@ package view.fragment;
 
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -23,10 +24,12 @@ import models.Variables;
 import network.CallbackHandler;
 
 import presenter.VolleyCallback;
+import view.activity.DashBoardActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.List;
 
@@ -76,13 +79,16 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
             mMonth = c.get(Calendar.MONTH);
             mDay = c.get(Calendar.DAY_OF_MONTH);
             DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(), datePickerListener, mYear, mMonth, mDay);
-            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+            c.add(Calendar.DAY_OF_MONTH, 1);
+            datePickerDialog.getDatePicker().setMinDate(c.getTimeInMillis());
             datePickerDialog.setCancelable(false);
             datePickerDialog.setTitle("Choose Remark date");
             datePickerDialog.show();
 
         } else if (view == remark_submit) {
-            if (Remark_date != null && remark_text.getText().toString() !="") {
+            String a = remark_text.getText().toString();
+            int b = a.trim().length();
+            if (Remark_date != null &&  remark_text.getText().toString().trim().length() > 0) {
 
                 if (getActivity().getIntent() != null) {
                     customer_details = getActivity().getIntent().getExtras();
@@ -148,8 +154,10 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
                                     public void onSuccess(String result) {
                                         Log.e("Followup_Remark_pass", result);
 
-                                            if ( result == "SUCCESS") {
+                                            if (("\""+"SUCCESS"+"\"").equals(result)) {
                                                 Toast.makeText(getActivity(), "Remark saved", Toast.LENGTH_LONG).show();
+                                                startActivity(new Intent(getActivity(), DashBoardActivity.class));
+                                                
                                             } else {
                                                 Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG).show();
                                             }
@@ -161,10 +169,7 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
                                         Log.e("Followup_Remark_p2b", result);
                                     }
 
-                                    @Override
-                                    public List<Variables.Product> onAutoComplete(String result) {
-                                        return null;
-                                    }
+
                                 });
                             } else {
                                 Toast.makeText(getActivity(), "Unsuccessful", Toast.LENGTH_LONG).show();
@@ -180,13 +185,10 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
                         Log.e("Remark", result);
                     }
 
-                    @Override
-                    public List<Variables.Product> onAutoComplete(String result) {
-                        return null;
-                    }
+
                 });
             } else {
-                Toast.makeText(getActivity(), "Choose The Date", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Enter Valid Date and Remark", Toast.LENGTH_LONG).show();
 
             }
 
@@ -198,13 +200,16 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
         public void onDateSet(DatePicker view, int selectedYear,
                               int selectedMonth, int selectedDay) {
             String year1 = String.valueOf(selectedYear);
-            String month1 = String.valueOf(selectedMonth + 1);
+            String month_todb = String.valueOf(selectedMonth + 1);
+            int month1 = selectedMonth + 1;
             String day1 = String.valueOf(selectedDay);
             String day = String.format("%02d", parseInt(day1));
-            String month = String.format("%02d", parseInt(month1));
+            String month_to_db = String.format("%02d", parseInt(month_todb));
+            String month = new DateFormatSymbols().getShortMonths()[month1 - 1];
             String Date = day + "/" + month + "/" + year1;
+            String Date_db = day + "/" + month_to_db + "/" + year1;
             txtDate.setText(Date);
-            Remark_date = Date;
+            Remark_date = Date_db;
 
         }
     };
