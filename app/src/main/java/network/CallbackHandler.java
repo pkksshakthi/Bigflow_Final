@@ -6,9 +6,14 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
@@ -76,7 +81,20 @@ public class CallbackHandler {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                success.onFailure(error.toString());
+                if (error instanceof TimeoutError) {
+                    success.onFailure("TimeoutError");
+                } else if (error instanceof NoConnectionError) {
+                    success.onFailure("NoConnectionError");
+                } else if (error instanceof AuthFailureError) {
+                    success.onFailure("AuthFailureError");
+                } else if (error instanceof ServerError) {
+                    success.onFailure("ServerError");
+                } else if (error instanceof NetworkError) {
+                    success.onFailure("NetworkError");
+                } else if (error instanceof ParseError) {
+                    success.onFailure("ParseError");
+                }
+
                 progressDialog.dismiss();
             }
 

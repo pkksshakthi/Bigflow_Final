@@ -17,16 +17,20 @@ import constant.Constant;
 import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
+import presenter.NetworkResult;
 import presenter.VolleyCallback;
 
-public class GetData {
+import view.fragment.DirctScheduleFragment;
+
+public class GetData implements NetworkResult {
     private List<Variables.ScheduleType> mScheduleTypeList;
     private List<Variables.FollowupReason> mFollowupReasonList;
     private static List<Variables.Product> mProductList ;
     private static Context mContext;
-
+    NetworkResult mResult;
     public GetData(Context context) {
         this.mContext = context;
+//        mResult=new GetData(context);
     }
 
     public List<Variables.ScheduleType> scheduleTypeList() {
@@ -52,7 +56,8 @@ public class GetData {
                             mScheduleTypeList.add(scheduleType);
                         }
                     }
-
+                    mResult.handlerResult("FOUND");
+                    //DirctScheduleFragment.createDialog();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -159,4 +164,9 @@ public class GetData {
         return mProductList;
     }
 
+
+    @Override
+    public void handlerResult(String result) {
+
+    }
 }

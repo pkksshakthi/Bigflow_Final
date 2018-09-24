@@ -1,6 +1,7 @@
 package view.fragment;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +25,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
+import com.chootdev.csnackbar.Align;
+import com.chootdev.csnackbar.Duration;
+import com.chootdev.csnackbar.Snackbar;
+import com.chootdev.csnackbar.Type;
 import com.vsolv.bigflow.R;
 
 import org.json.JSONArray;
@@ -42,11 +47,12 @@ import models.ScheduleForAdapter;
 import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
+import presenter.NetworkResult;
 import presenter.VolleyCallback;
 import view.activity.SalesActivity;
 
 
-public class DirctScheduleFragment extends Fragment implements View.OnClickListener {
+public class DirctScheduleFragment extends Fragment implements View.OnClickListener, NetworkResult {
 
     private static final String ARG_Title = "title";
     private static final String ARG_PARAM2 = "param2";
@@ -55,7 +61,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
     private TextView empty_view, reload;
     public CustomerAdapter adapter;
     private ArrayList<Variables.Customer> customerList;
-
+    private View fragmentView;
     public ListView listView;
     private LinearLayout linearLayout;
     public ScheduleForAdapter scheduleForAdapter;
@@ -66,6 +72,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
 
     private OnFragmentInteractionListener mListener;
     private GetData getData;
+    private ProgressDialog progressDialog;
 
     public DirctScheduleFragment() {
         // Required empty public constructor
@@ -96,7 +103,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                              Bundle savedInstanceState) {
         getActivity().setTitle("Bigflow");
         View view = inflater.inflate(R.layout.fragment_dirct_schedule, container, false);
-
+        fragmentView = view;
         loadView(view);
         initializeView();
         loadData();
@@ -118,6 +125,10 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         customerList = new ArrayList<>();
         reload.setOnClickListener(this);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle(getResources().getString(R.string.loading));
+        progressDialog.setCancelable(false);
+
         getData = new GetData(getActivity());
         customerSearch.addTextChangedListener(new TextWatcher() {
             @Override
@@ -139,6 +150,13 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
 
     private void loadData() {
         if (!Common.isOnline(getContext())) {
+            Snackbar.with(getActivity(), null)
+                    .type(Type.WARNING)
+                    .message("Please Check Internet Connection.")
+                    .duration(Duration.SHORT)
+                    .fillParent(true)
+                    .textAlign(Align.LEFT)
+                    .show();
             setVisibility(View.GONE, View.GONE, View.VISIBLE);
             return;
         }
@@ -167,6 +185,8 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                         }
 
                         setAdapter();
+                    } else {
+                        empty_view.setText(getResources().getString(R.string.error_loading));
                     }
 
                 } catch (JSONException e) {
@@ -206,6 +226,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
         });
 
         if (adapter.getItemCount() == 0) {
+            empty_view.setText("" + getActivity().getResources().getString(R.string.loading));
             setVisibility(View.GONE, View.VISIBLE, View.GONE);
         } else {
             setVisibility(View.VISIBLE, View.GONE, View.GONE);
@@ -221,19 +242,26 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
 
     public void filter(String text) {
         List<Variables.Customer> temp = new ArrayList();
-        for (Variables.Customer d : customerList) {
+        if (customerList.size() > 0) {
+            for (Variables.Customer d : customerList) {
 
-            if (d.getCust_name().toLowerCase().replaceAll("\\s+", "").contains(text.toLowerCase().replaceAll("\\s+", ""))) {
-                temp.add(d);
+                if (d.getCust_name().toLowerCase().replaceAll("\\s+", "").contains(text.toLowerCase().replaceAll("\\s+", ""))) {
+                    temp.add(d);
+                }
             }
+            adapter.updateList(temp);
         }
 
-        adapter.updateList(temp);
+
     }
 
     public void getScheduleType(int customer_gid) {
-        scheduleTypeList=new ArrayList<>();
-        String URL = Constant.URL + "Schedule_Master?";
+        //new
+        progressDialog.show();
+        scheduleTypeList = new ArrayList<>();
+        scheduleTypeList=getData.scheduleTypeList();
+
+        /*String URL = Constant.URL + "Schedule_Master?";
         URL = URL + "&Action=SCHEDULE_TYPE&Entity_gid=" + UserDetails.getEntity_gid();
 
         CallbackHandler.sendReqest(getContext(), Request.Method.GET, "", URL, new VolleyCallback() {
@@ -244,6 +272,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("MESSAGE");
                     if (message.equals("FOUND")) {
+                        scheduleTypeList.clear();
                         JSONArray jsonArray = jsonObject.getJSONArray("DATA");
 
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -253,11 +282,13 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                             scheduleType.schedule_type_name = obj_json.getString("scheduletype_name");
                             scheduleTypeList.add(scheduleType);
                         }
-                        createDialog();
+                        c
+                        progressDialog.dismiss();
                     }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    progressDialog.dismiss();
                 }
 
 
@@ -265,14 +296,16 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
 
             @Override
             public void onFailure(String result) {
-
+                progressDialog.dismiss();
+                if (result.equals("NoConnectionError"))
+                    Common.showSnackbar_warning(getActivity(), fragmentView, "Please Check Internet Connection.");
                 Log.e("Getdata-scheduletype", result);
             }
-        });
+        });*/
 
     }
 
-    public void createDialog() {
+    public   void createDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Schedule For");
@@ -342,6 +375,11 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                 break;
 
         }
+    }
+
+    @Override
+    public void handlerResult(String result) {
+        createDialog();
     }
 
     public interface OnFragmentInteractionListener {

@@ -65,7 +65,7 @@ public class Common {
     public static void showSnackbar_success(Context context, View view, String message) {
         Snackbar snackbar = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
         View snackbarView = snackbar.getView();
-        snackbarView.setBackgroundColor(context.getResources().getColor(R.color.warning));
+        snackbarView.setBackgroundColor(context.getResources().getColor(R.color.success));
         TextView textView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
         textView.setTextColor(context.getResources().getColor(R.color.colorWhite));
         snackbar.show();

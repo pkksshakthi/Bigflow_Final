@@ -49,6 +49,7 @@ import network.LocationService;
 import presenter.NavigationManager;
 import presenter.UserSessionManager;
 import view.fragment.AboutFragment;
+import view.fragment.AddScheduleFragment;
 import view.fragment.DirctScheduleFragment;
 import view.fragment.ProfileFragment;
 import view.fragment.SynchronizeFragment;
@@ -64,6 +65,7 @@ public class DashBoardActivity extends AppCompatActivity {
     FloatingActionButton fab;
     IntentFilter mIntentFilter;
     ConnectivityReceiver connectivityReceiver;
+    private Boolean isOffline=false;
 
     private ExpandableListView mExpandableListView;
     private List<String> mExpandableListTitle;
@@ -104,11 +106,16 @@ public class DashBoardActivity extends AppCompatActivity {
         connectivityReceiver.setConnectivityReceiver(new ConnectivityReceiver.ConnectivityReceiverListener() {
             @Override
             public void onNetworkConnectionChanged(boolean isConnected) {
+                View view = findViewById(R.id.content_frame);
                 if (isConnected) {
                     dataSynchronize();
+                    if (isOffline) {
+                        Common.showSnackbar_success(getApplicationContext(), view, "You are online");
+                        isOffline = false;
+                    }
                 } else {
-                    View view = findViewById(R.id.content_frame);
-                    Common.showSnackbar_warning(getApplicationContext(),view,"You are offline");
+                    isOffline = true;
+                    Common.showSnackbar_warning(getApplicationContext(), view, "You are offline");
                 }
             }
         });
