@@ -54,6 +54,8 @@ public class CollectionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection);
+        /*http://sachinverma.co.in/upload-multiple-images-to-server-using-volley-android/*/
+
         imageView = findViewById(R.id.ivSelected);
         upLoad = findViewById(R.id.btnUpload);
         openCamera = findViewById(R.id.openCamera);
