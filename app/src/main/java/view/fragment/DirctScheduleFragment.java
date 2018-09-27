@@ -3,7 +3,6 @@ package view.fragment;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,7 +19,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,8 +34,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import DataBase.GetData;
 import constant.Constant;
@@ -47,12 +45,13 @@ import models.ScheduleForAdapter;
 import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
-import presenter.NetworkResult;
 import presenter.VolleyCallback;
+import view.activity.CollectionActivity;
 import view.activity.SalesActivity;
+import view.activity.ServiceActivity;
 
 
-public class DirctScheduleFragment extends Fragment implements View.OnClickListener, NetworkResult {
+public class DirctScheduleFragment extends Fragment implements View.OnClickListener {
 
     private static final String ARG_Title = "title";
     private static final String ARG_PARAM2 = "param2";
@@ -65,7 +64,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
     public ListView listView;
     private LinearLayout linearLayout;
     public ScheduleForAdapter scheduleForAdapter;
-    private List<Variables.ScheduleType> scheduleTypeList;
+    private List<Object> scheduleTypeList;
     private AlertDialog alertDialog;
     private Bundle sessiondata;
     private String mParam1, mParam2;
@@ -259,12 +258,20 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
         //new
         progressDialog.show();
         scheduleTypeList = new ArrayList<>();
-        scheduleTypeList=getData.scheduleTypeList();
 
-        /*String URL = Constant.URL + "Schedule_Master?";
-        URL = URL + "&Action=SCHEDULE_TYPE&Entity_gid=" + UserDetails.getEntity_gid();
+        String URL = Constant.URL + "FETScheduleCustomer?";
+        URL = URL + "&Type=CUSTOMER&Sub_Type=UNIQUE";
+        JSONObject jsonObject = new JSONObject();
+        try {
 
-        CallbackHandler.sendReqest(getContext(), Request.Method.GET, "", URL, new VolleyCallback() {
+            jsonObject.put("Customer_Gid", customer_gid);
+            jsonObject.put("Schedule_Date", Common.convertDateString(new Date(), "yyyy-MM-dd"));
+        } catch (JSONException e) {
+            Log.e("Login", e.getMessage());
+        }
+
+
+        CallbackHandler.sendReqest(getContext(), Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
 
@@ -273,16 +280,22 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                     String message = jsonObject.getString("MESSAGE");
                     if (message.equals("FOUND")) {
                         scheduleTypeList.clear();
-                        JSONArray jsonArray = jsonObject.getJSONArray("DATA");
-
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject obj_json = jsonArray.getJSONObject(i);
-                            Variables.ScheduleType scheduleType = new Variables.ScheduleType();
-                            scheduleType.schedule_type_id = obj_json.getInt("scheduletype_gid");
-                            scheduleType.schedule_type_name = obj_json.getString("scheduletype_name");
-                            scheduleTypeList.add(scheduleType);
+                        /*JSONObject objData = jsonObject.getJSONObject("DATA");
+                        JSONArray scheduleTask = objData.getJSONArray("ScheudleTask");
+                        JSONArray nonScheduleTask = objData.getJSONArray("Non_ScheduleTask");
+                        if (scheduleTask.length() != 0) {
+                            scheduleTypeList.add("Scheduled");
+                            addScheduleData(scheduleTask);
                         }
-                        c
+                        if (nonScheduleTask.length() != 0) {
+                            scheduleTypeList.add("Non Scheduled");
+                            addScheduleData(nonScheduleTask);
+                        }*/
+                        Variables.ScheduleType scheduleType = new Variables.ScheduleType();
+                        scheduleType.schedule_type_id = 1;
+                        scheduleType.schedule_type_name = "COLLECTION";
+                        scheduleTypeList.add(scheduleType);
+                        createDialog();
                         progressDialog.dismiss();
                     }
 
@@ -301,11 +314,21 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                     Common.showSnackbar_warning(getActivity(), fragmentView, "Please Check Internet Connection.");
                 Log.e("Getdata-scheduletype", result);
             }
-        });*/
+        });
 
     }
 
-    public   void createDialog() {
+    public void addScheduleData(JSONArray jsonArray) throws JSONException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject obj_json = jsonArray.getJSONObject(i);
+            Variables.ScheduleType scheduleType = new Variables.ScheduleType();
+            scheduleType.schedule_type_id = obj_json.getInt("ScheduleType_Gid");
+            scheduleType.schedule_type_name = obj_json.getString("ScheduleType_Name");
+            scheduleTypeList.add(scheduleType);
+        }
+    }
+
+    public void createDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Schedule For");
@@ -316,7 +339,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Variables.ScheduleType scheduleType = scheduleTypeList.get(position);
+                Variables.ScheduleType scheduleType = (Variables.ScheduleType) scheduleTypeList.get(position);
                 sessiondata.putInt("scheduletype_id", scheduleType.schedule_type_id);
                 Class aClass = null;
                 switch (scheduleType.schedule_type_name) {
@@ -324,6 +347,16 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                         aClass = SalesActivity.class;
                         break;
                     case "COLLECTION":
+                        aClass = CollectionActivity.class;
+                        break;
+                    case "SERVICE":
+                        aClass = ServiceActivity.class;
+                        break;
+                    case "STOCK":
+                        aClass = ServiceActivity.class;
+                        break;
+                    case "OTHERS":
+                        aClass = null;
                         break;
                 }
                 if (aClass != null) {
@@ -377,10 +410,6 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
         }
     }
 
-    @Override
-    public void handlerResult(String result) {
-        createDialog();
-    }
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name

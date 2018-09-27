@@ -65,7 +65,7 @@ public class DashBoardActivity extends AppCompatActivity {
     FloatingActionButton fab;
     IntentFilter mIntentFilter;
     ConnectivityReceiver connectivityReceiver;
-    private Boolean isOffline=false;
+    private Boolean isOffline = false;
 
     private ExpandableListView mExpandableListView;
     private List<String> mExpandableListTitle;
@@ -73,36 +73,20 @@ public class DashBoardActivity extends AppCompatActivity {
 
     private Map<String, List<String>> mExpandableListData;
     private DrawerLayout drawer;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dash_board);
+        loadView();
+        initializeView();
+        loadData();
 
-        session = new UserSessionManager(getApplicationContext());
-        connectivityReceiver = new ConnectivityReceiver();
-
-        mExpandableListView = findViewById(R.id.navList);
-        mNavigationManager = FragmentNavigationManager.obtain(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         fabButtonDetails();
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        setHeaderDetails();
-
-        mExpandableListView.addHeaderView(navHeader);
-        mExpandableListData = ExpandableListDataSource.getData(this);
-        mExpandableListTitle = new ArrayList(mExpandableListData.keySet());
-
-        addDrawerItems();
+        checkLocationPermission();
         connectivityReceiver.setConnectivityReceiver(new ConnectivityReceiver.ConnectivityReceiverListener() {
             @Override
             public void onNetworkConnectionChanged(boolean isConnected) {
@@ -120,7 +104,6 @@ public class DashBoardActivity extends AppCompatActivity {
             }
         });
 
-        checkLocationPermission();
 
         if (boolean_permission_location) {
             Intent intent = new Intent(getApplicationContext(), LocationService.class);
@@ -129,6 +112,29 @@ public class DashBoardActivity extends AppCompatActivity {
         if (getFragmentManager().findFragmentById(R.id.content_frame) == null) {
             setFragment(selectFragment(""), false);
         }
+    }
+
+    private void loadView() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mExpandableListView = findViewById(R.id.navList);
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+    }
+
+    private void initializeView() {
+        session = new UserSessionManager(getApplicationContext());
+        connectivityReceiver = new ConnectivityReceiver();
+        mNavigationManager = FragmentNavigationManager.obtain(this);
+        setSupportActionBar(toolbar);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        setHeaderDetails();
+        addDrawerItems();
+    }
+
+    private void loadData() {
     }
 
     private void checkLocationPermission() {
@@ -172,7 +178,21 @@ public class DashBoardActivity extends AppCompatActivity {
     private void checkLocationOn() {
 
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+        if (!Common.isOnline(getApplicationContext())) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Internet Connection");
+            builder.setMessage("Please enable Internet connection");
+            builder.setCancelable(false);
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+                    startActivityForResult(intent, 0);
+                }
+            });
+            Dialog alertDialog = builder.create();
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.show();
+        } else if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             // Build the alert dialog
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -206,7 +226,6 @@ public class DashBoardActivity extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
         navHeader = inflater.inflate(R.layout.nav_header_dash_board, mExpandableListView, false);
 
-
         nav_header_title = navHeader.findViewById(R.id.nav_header_title);
         nav_header_subtitle = navHeader.findViewById(R.id.nav_header_subtitle);
         nav_profile = navHeader.findViewById(R.id.nav_ivprofile);
@@ -220,6 +239,7 @@ public class DashBoardActivity extends AppCompatActivity {
         });
 
         nav_header_title.setText(UserDetails.getUser_name());
+        mExpandableListView.addHeaderView(navHeader);
     }
 
 
@@ -266,6 +286,7 @@ public class DashBoardActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         checkLocationOn();
+        //checkInternetOn();
     }
 
     @Override
@@ -287,6 +308,8 @@ public class DashBoardActivity extends AppCompatActivity {
     }
 
     private void addDrawerItems() {
+        mExpandableListData = ExpandableListDataSource.getData(this);
+        mExpandableListTitle = new ArrayList(mExpandableListData.keySet());
         ExpandableListAdapter mExpandableListAdapter = new CustomExpandableListAdapter(this, mExpandableListTitle, mExpandableListData);
         mExpandableListView.setAdapter(mExpandableListAdapter);
         mExpandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
@@ -349,6 +372,10 @@ public class DashBoardActivity extends AppCompatActivity {
         switch (selectedItem) {
             case "Direct":
                 fragment = DirctScheduleFragment.newInstance("Today Schedule", "");
+                fab.hide();
+                break;
+            case "FET":
+                fragment = AddScheduleFragment.newInstance("Add Schedule", "");
                 fab.hide();
                 break;
             default:

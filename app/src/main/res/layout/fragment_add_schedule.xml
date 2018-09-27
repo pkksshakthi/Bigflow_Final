@@ -6,6 +6,12 @@
     tools:context="view.fragment.AddScheduleFragment">
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/employee_RecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_margin="5dp" />
+
+    <android.support.v7.widget.RecyclerView
         android:id="@+id/customer_AddSchedule_RecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

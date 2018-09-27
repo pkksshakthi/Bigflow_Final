@@ -14,12 +14,23 @@
         android:background="@drawable/bc"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+        <android.support.v7.widget.CardView
+            android:id="@+id/view2"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="45dp"
-            android:src="@drawable/vsolv_logo_transparent" />
+            android:elevation="12dp"
+            app:cardCornerRadius="40dp">
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/vsolv_logo_transparent">
+
+            </ImageView>
+        </android.support.v7.widget.CardView>
 
         <TextView
             android:id="@+id/txtEmployeeName"
@@ -64,17 +75,16 @@
                     android:layout_margin="10dp"
                     android:drawableLeft="@drawable/ic_action_person"
                     android:text="Basic info"
-                    android:textStyle="bold"
-                    android:textSize="15sp"/>
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_margin="10dp"
                     android:text="@string/edit"
-                    android:textSize="15sp"
                     android:textColor="@color/colorAccent"
-                     />
+                    android:textSize="15sp" />
             </LinearLayout>
 
             <View
@@ -85,26 +95,26 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_margin="5dp">
+                android:layout_margin="5dp"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/txtEmployeeMailId"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"/>
+                    android:layout_margin="5dp" />
 
                 <TextView
                     android:id="@+id/txtEmployeePhoneNo"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"/>
+                    android:layout_margin="5dp" />
 
                 <TextView
                     android:id="@+id/txtEmployeeAddress"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="5dp"/>
+                    android:layout_margin="5dp" />
             </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
@@ -113,8 +123,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="5dp"
+        android:orientation="vertical">
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"

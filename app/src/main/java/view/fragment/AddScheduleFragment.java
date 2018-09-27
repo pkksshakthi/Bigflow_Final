@@ -48,7 +48,7 @@ public class AddScheduleFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
     private View fragmentView;
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView, empRecyclerView;
     private TextView empty_view;
     private ProgressDialog progressDialog;
     private ArrayList<Variables.Customer> customerList;
@@ -101,6 +101,7 @@ public class AddScheduleFragment extends Fragment {
 
     private void loadView() {
         recyclerView = (RecyclerView) fragmentView.findViewById(R.id.customer_AddSchedule_RecyclerView);
+        empRecyclerView = (RecyclerView) fragmentView.findViewById(R.id.employee_RecyclerView);
         empty_view = fragmentView.findViewById(R.id.addSchedule_Empty_view);
     }
 
@@ -110,6 +111,8 @@ public class AddScheduleFragment extends Fragment {
         progressDialog.setCancelable(false);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
+        empRecyclerView.setLayoutManager(layoutManager);
         customerList = new ArrayList<>();
     }
 
@@ -174,7 +177,7 @@ public class AddScheduleFragment extends Fragment {
 
         adapter = new CustomerAdapter(getActivity(), customerList);
         recyclerView.setAdapter(adapter);
-
+        empRecyclerView.setAdapter(adapter);
 
         adapter.setOnclickListener(new CustomerAdapter.OnItemClickListener() {
             @Override

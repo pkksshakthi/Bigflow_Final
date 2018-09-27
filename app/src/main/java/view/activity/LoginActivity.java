@@ -91,7 +91,13 @@ public class LoginActivity extends Activity {
                 } else if (userName.length() > 0 && password.length() > 0) {
                     loginRequest(userName, password);
                 } else {
+                    if (userName.length() == 0) {
+                        loginUserName.setError("Enter code");
+                    } else {
+                        loginPassword.setError("Enter password");
+                    }
                     Toast.makeText(getApplicationContext(), "Please enter the user name and password", Toast.LENGTH_LONG).show();
+                    setVisibility(View.VISIBLE, View.GONE);
                 }
             }
         });
@@ -156,23 +162,29 @@ public class LoginActivity extends Activity {
         UserDetails.setUser_id(jsonObject.getString("employee_gid"));
         UserDetails.setUser_name(jsonObject.getString("employee_name"));
         UserDetails.setEntity_gid(jsonObject.getString("entity_gid"));
+        if (isOnline(getApplicationContext())) {
+            loadMenu(jsonObject);
+        } else {
+            startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
+            finish();
+            setVisibility(View.GONE, View.VISIBLE);
+        }
 
-/*
-//        Ramesh Temp Menu
+    }
+
+    private void loadMenu(JSONObject jsonObject) {
         String URL = Constant.URL + "user_rights?emp_gid=" + UserDetails.getUser_id(); //Its from Session
-        CallbackHandler.sendReqest(getApplicationContext(), Request.Method.GET, jsonObject.toString(), URL, new VolleyCallback() {
+        CallbackHandler.sendReqest(LoginActivity.this, Request.Method.GET, jsonObject.toString(), URL, new VolleyCallback() {
             @Override
             public void onSuccess(String result) {
-                // Log.e("result", result);
+
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String status = jsonObject.getString("MESSAGE");
                     if (status.equals("FOUND")) {
-//                        JSONObject test =  jsonObject.getJSONObject("DATA");
+
                         JSONArray jsonArray;
                         jsonArray = jsonObject.getJSONArray("DATA");
-                        jsonArray = jsonArray;
-
 
                         DataBaseHandler dataBaseHandler = new DataBaseHandler(LoginActivity.this);
                         dataBaseHandler.Table_Truncate("gal_mst_tmenu");
@@ -192,7 +204,7 @@ public class LoginActivity extends Activity {
 
                             String Out_Message = dataBaseHandler.Insert("gal_mst_tmenu", contentValues);
 
-                            if (Out_Message != "SUCCESS") {
+                            if (!Out_Message.equals("SUCCESS")) {
                                 Toast.makeText(getApplicationContext(), "Error.:" + "Error On Menu Creation.", Toast.LENGTH_LONG).show();
                             }
 
@@ -204,24 +216,19 @@ public class LoginActivity extends Activity {
                     }
                 } catch (JSONException e) {
                     Log.e("Login", e.getMessage());
-                    setVisibility(View.VISIBLE, View.GONE);
                 }
+                startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
+                finish();
+                setVisibility(View.GONE, View.VISIBLE);
 
             }
 
             @Override
             public void onFailure(String result) {
-                //pd.hide();
                 Log.e("Login", result);
                 setVisibility(View.VISIBLE, View.GONE);
             }
         });
-
-//Ramesh Temp Menu Ends
-*/
-        startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
-        finish();
-        setVisibility(View.GONE, View.VISIBLE);
     }
 
     public boolean isOnline(Context context) {
