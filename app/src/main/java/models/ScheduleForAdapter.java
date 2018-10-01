@@ -6,10 +6,8 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-
 
 import com.vsolv.bigflow.R;
 
@@ -17,16 +15,15 @@ import java.util.List;
 
 
 public class ScheduleForAdapter extends BaseAdapter {
-    private final LayoutInflater inflater;
+
     Context _Context;
     int _resource;
-    List<Variables.ScheduleType> _ScheduleTypeList;
+    List<Object> _ScheduleTypeList;
     final int isHeader = 0;
     final int isItems = 1;
 
-    public ScheduleForAdapter(@NonNull Context context, int resource, List<Variables.ScheduleType> scheduleTypeList) {
+    public ScheduleForAdapter(@NonNull Context context, int resource, List<Object> scheduleTypeList) {
         this._Context = context;
-        inflater = LayoutInflater.from(_Context);
         this._resource = resource;
         this._ScheduleTypeList = scheduleTypeList;
     }
@@ -68,16 +65,18 @@ public class ScheduleForAdapter extends BaseAdapter {
         if (view == null) {
             switch (getItemViewType(position)) {
                 case isHeader:
+                    LayoutInflater inflater = LayoutInflater.from(_Context);
                     view = inflater.inflate(R.layout.list_header, null);
                     break;
                 case isItems:
-                    view = inflater.inflate(_resource, null);
+                    LayoutInflater inflater1 = LayoutInflater.from(_Context);
+                    view = inflater1.inflate(_resource, null);
                     break;
             }
         }
         switch (getItemViewType(position)) {
             case isHeader:
-                TextView headerText = view.findViewById(R.id.list_header);
+                TextView headerText = view.findViewById(R.id.txtList_header);
                 headerText.setText(_ScheduleTypeList.get(position).toString());
                 break;
             case isItems:

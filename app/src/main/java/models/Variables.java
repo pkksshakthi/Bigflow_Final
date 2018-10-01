@@ -1,7 +1,6 @@
 package models;
 
 
-
 public class Variables {
     public static class Menulist {
         public int Menu_gid;
@@ -45,6 +44,7 @@ public class Variables {
     public static class ScheduleType {
         public String schedule_type_name;
         public int schedule_type_id;
+
         public String getSchedule_type_name() {
             return schedule_type_name;
         }
@@ -67,10 +67,9 @@ public class Variables {
         }
 
 
-
     }
 
-    public static class Location{
+    public static class Location {
         public double latlong_lat;
         public double latlong_long;
         public int emp_gid;
@@ -79,15 +78,27 @@ public class Variables {
         public int entity_gid;
     }
 
-    public static class Product{
+    public static class Product {
         public int product_id;
         public String product_name;
         public String product_code;
     }
 
-    public static class Sales{
+    public static class Sales {
         public int sodetails_product_gid;
         public double quantity;
 
     }
+
+    public static class Service {
+        public int product_id;
+        public String product_name;
+
+        public Service(int product_id, String product_name) {
+            this.product_id = product_id;
+            this.product_name = product_name;
+
+        }
+    }
+
 }
