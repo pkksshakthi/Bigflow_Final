@@ -20,11 +20,11 @@ public class ScheduleForAdapter extends BaseAdapter {
     private final LayoutInflater inflater;
     Context _Context;
     int _resource;
-    List<Object> _ScheduleTypeList;
+    List<Variables.ScheduleType> _ScheduleTypeList;
     final int isHeader = 0;
     final int isItems = 1;
 
-    public ScheduleForAdapter(@NonNull Context context, int resource, List<Object> scheduleTypeList) {
+    public ScheduleForAdapter(@NonNull Context context, int resource, List<Variables.ScheduleType> scheduleTypeList) {
         this._Context = context;
         inflater = LayoutInflater.from(_Context);
         this._resource = resource;
