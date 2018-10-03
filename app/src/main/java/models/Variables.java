@@ -101,4 +101,16 @@ public class Variables {
         }
     }
 
+    public static class Timeline {
+        public enum Status {
+            COMPLETED,
+            ACTIVE,
+            INACTIVE, REJECTED;
+        }
+
+        public String title;
+        public String subtitle;
+        public Status status;
+    }
+
 }

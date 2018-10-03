@@ -40,16 +40,15 @@ import java.util.Map;
 import models.Common;
 import models.CustomExpandableListAdapter;
 import models.ExpandableListDataSource;
-import models.FragmentNavigationManager;
 import models.LocationSync;
 import models.UserDetails;
 import network.ConnectivityReceiver;
 import network.LocationService;
-import presenter.NavigationManager;
 import presenter.UserSessionManager;
 import view.fragment.AboutFragment;
 import view.fragment.AddScheduleFragment;
 import view.fragment.DirctScheduleFragment;
+import view.fragment.EmpAchievementFragment;
 import view.fragment.ProfileFragment;
 import view.fragment.SynchronizeFragment;
 
@@ -68,7 +67,6 @@ public class DashBoardActivity extends AppCompatActivity {
 
     private ExpandableListView mExpandableListView;
     private List<String> mExpandableListTitle;
-    private NavigationManager mNavigationManager;
 
     private Map<String, List<String>> mExpandableListData;
     private DrawerLayout drawer;
@@ -122,7 +120,6 @@ public class DashBoardActivity extends AppCompatActivity {
     private void initializeView() {
         session = new UserSessionManager(getApplicationContext());
         connectivityReceiver = new ConnectivityReceiver();
-        mNavigationManager = FragmentNavigationManager.obtain(this);
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -375,6 +372,10 @@ public class DashBoardActivity extends AppCompatActivity {
                 break;
             case "FET":
                 fragment = AddScheduleFragment.newInstance("Add Schedule", "");
+                fab.hide();
+                break;
+            case "Approve":
+                fragment = EmpAchievementFragment.newInstance("Add Schedule", "");
                 fab.hide();
                 break;
             default:

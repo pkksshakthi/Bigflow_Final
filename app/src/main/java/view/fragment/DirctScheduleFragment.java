@@ -49,8 +49,6 @@ import presenter.VolleyCallback;
 import view.activity.MapsActivity;
 import view.activity.SalesActivity;
 import view.activity.ServiceActivity;
-import view.activity.StockActivity;
-import view.activity.TestActivity;
 
 
 public class DirctScheduleFragment extends Fragment implements View.OnClickListener {
@@ -350,7 +348,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                             aClass = MapsActivity.class;
                             break;
                         case "SERVICE":
-                            aClass = StockActivity.class;
+                            aClass = ServiceActivity.class;
                             break;
                         case "STOCK":
                             aClass = ServiceActivity.class;

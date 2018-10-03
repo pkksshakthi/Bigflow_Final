@@ -2,7 +2,6 @@ package DataBase;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.LinearLayout;
 
 import com.android.volley.Request;
 
@@ -17,19 +16,20 @@ import constant.Constant;
 import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
+import presenter.NetworkResult;
 import presenter.VolleyCallback;
 
 public class GetData {
     private List<Variables.ScheduleType> mScheduleTypeList;
     private List<Variables.FollowupReason> mFollowupReasonList;
-    private static List<Variables.Product> mProductList ;
+    private static List<Variables.Product> mProductList;
     private static Context mContext;
 
     public GetData(Context context) {
         this.mContext = context;
     }
 
-    public List<Variables.ScheduleType> scheduleTypeList() {
+    public List<Variables.ScheduleType> scheduleTypeList(final NetworkResult networkResult) {
         mScheduleTypeList = new ArrayList<>();
         String URL = Constant.URL + "Schedule_Master?";
         URL = URL + "&Action=SCHEDULE_TYPE&Entity_gid=" + UserDetails.getEntity_gid();
@@ -56,13 +56,13 @@ public class GetData {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-
+                networkResult.handlerResult("SUCCESS");
 
             }
 
             @Override
             public void onFailure(String result) {
-
+                networkResult.handlerError("ERROR");
                 Log.e("Getdata-scheduletype", result);
             }
         });
@@ -114,6 +114,7 @@ public class GetData {
 
         return mFollowupReasonList;
     }
+
     public static List<Variables.Product> productList(String product_name) {
         mProductList = new ArrayList<>();
         String URL = Constant.URL + "Schedule_Master?";

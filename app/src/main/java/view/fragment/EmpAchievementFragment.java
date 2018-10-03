@@ -4,10 +4,18 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.vsolv.bigflow.R;
+
+import java.util.ArrayList;
+
+import models.TimeLineAdapter;
+import models.Variables;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,6 +36,8 @@ public class EmpAchievementFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private RecyclerView recyclerView;
+    private ArrayList<Variables.Timeline> timelines;
 
     public EmpAchievementFragment() {
         // Required empty public constructor
@@ -37,7 +47,7 @@ public class EmpAchievementFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param Title Parameter 1.
+     * @param Title  Parameter 1.
      * @param param2 Parameter 2.
      * @return A new instance of fragment AddSchedule.
      */
@@ -64,9 +74,45 @@ public class EmpAchievementFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        getActivity().setTitle("About");
-        return inflater.inflate(R.layout.fragment_emp_achievement, container, false);
+        getActivity().setTitle("Sales Details");
+        View view = inflater.inflate(R.layout.fragment_emp_achievement, container, false);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_timeLine);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
+        setDataListItems();
+        TimeLineAdapter mTimeLineAdapter = new TimeLineAdapter(getActivity(), timelines);
+        recyclerView.setAdapter(mTimeLineAdapter);
+        return view;
 
+    }
+
+    private void setDataListItems() {
+        timelines = new ArrayList<>();
+        Variables.Timeline timeline = new Variables.Timeline();
+        timeline.title = "Item successfully delivereddsfgsdfsdfsd edgdsgf sd";
+        timeline.subtitle = "sub delivered";
+        timeline.status = Variables.Timeline.Status.ACTIVE;
+        timelines.add(timeline);
+        timeline = new Variables.Timeline();
+        timeline.title = "Item successfully delivered";
+        timeline.subtitle = "sub delivered";
+        timeline.status = Variables.Timeline.Status.INACTIVE;
+        timelines.add(timeline);
+        timeline = new Variables.Timeline();
+        timeline.title = "Item successfully delivered";
+        timeline.subtitle = "sub delivered";
+        timeline.status = Variables.Timeline.Status.REJECTED;
+        timelines.add(timeline);
+        timeline = new Variables.Timeline();
+        timeline.title = "Item successfully delivered";
+        timeline.subtitle = "sub delivered";
+        timeline.status = Variables.Timeline.Status.COMPLETED;
+        timelines.add(timeline);
+        timeline = new Variables.Timeline();
+        timeline.title = "Item successfully delivered";
+        timeline.subtitle = "sub delivered";
+        timeline.status = Variables.Timeline.Status.ACTIVE;
+        timelines.add(timeline);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

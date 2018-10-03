@@ -1,16 +1,19 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context="view.fragment.EmpAchievementFragment">
 
-    <com.github.vipulasri.timelineview.TimelineView
-        android:id="@+id/time_marker"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:markerSize="20dp"
-        app:lineSize="2dp"
-        app:line="@color/colorPrimary"/>
+        android:padding="10dp"
+        android:clipToPadding="false"
+        android:id="@+id/recycler_timeLine"
+        >
 
-</FrameLayout>
+    </android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

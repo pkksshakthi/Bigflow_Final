@@ -1,6 +1,5 @@
 package network;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 
@@ -31,7 +30,6 @@ public class CallbackHandler {
     static Context mContext;
     private static StringRequest mStringRequest;
     private static RequestQueue mRequestQueue;
-    private static ProgressDialog progressDialog;
     private static CallbackHandler mInstance;
 
     public CallbackHandler(Context ctx) {
@@ -59,23 +57,15 @@ public class CallbackHandler {
 
     public static RequestQueue sendReqest(Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
 
-        // if (progressDialog==null){
-        progressDialog = new ProgressDialog(context);
-        //}
-        if (progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
         mContext = context;
-        progressDialog.setTitle("Loading.." + context.getClass().toString());
-        progressDialog.setCancelable(false);
-        progressDialog.show();
+
         mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
 
         mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 success.onSuccess(response);
-                progressDialog.dismiss();
+
 
             }
         }, new Response.ErrorListener() {
@@ -95,7 +85,6 @@ public class CallbackHandler {
                     success.onFailure("ParseError");
                 }
 
-                progressDialog.dismiss();
             }
 
         }) {
@@ -126,11 +115,10 @@ public class CallbackHandler {
             }
         };
 
-        mStringRequest.setRetryPolicy(new DefaultRetryPolicy( 200*30000,
+        mStringRequest.setRetryPolicy(new DefaultRetryPolicy(200 * 30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         CallbackHandler.getInstance(mContext).addToRequestQueue(mStringRequest);
-        progressDialog.dismiss();
         return mRequestQueue;
     }
 }
