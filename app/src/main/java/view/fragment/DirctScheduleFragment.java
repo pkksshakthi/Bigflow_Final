@@ -46,8 +46,10 @@ import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
 import presenter.VolleyCallback;
+import view.activity.MapsActivity;
 import view.activity.SalesActivity;
 import view.activity.ServiceActivity;
+import view.activity.StockActivity;
 import view.activity.TestActivity;
 
 
@@ -345,10 +347,10 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                             aClass = SalesActivity.class;
                             break;
                         case "COLLECTION":
-                            aClass = TestActivity.class;
+                            aClass = MapsActivity.class;
                             break;
                         case "SERVICE":
-                            aClass = ServiceActivity.class;
+                            aClass = StockActivity.class;
                             break;
                         case "STOCK":
                             aClass = ServiceActivity.class;

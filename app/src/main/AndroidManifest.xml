@@ -7,26 +7,23 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CAMERA"></uses-permission>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"  
-        android:fullBackupContent="true"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        
         <activity
-            android:name=".MapsActivity"
+            android:name="view.activity.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -55,9 +52,14 @@
             android:name="network.LocationService"
             android:enabled="true"
             android:exported="true" />
-        <activity android:name="view.activity.CollectionActivity"></activity>
-        <activity android:name="view.activity.ServiceActivity"></activity>
-        <activity android:name="view.activity.StockActivity"></activity>
+
+        <activity android:name="view.activity.CollectionActivity" />
+        <activity android:name="view.activity.ServiceActivity" />
+        <activity android:name="view.activity.StockActivity" />
+        <activity android:name="view.activity.MapsActivity" />
+        <activity
+            android:name="view.activity.TestActivity"
+            android:label="@string/title_activity_test"></activity>
     </application>
 
 </manifest>
