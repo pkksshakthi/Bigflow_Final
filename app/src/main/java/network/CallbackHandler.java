@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
@@ -25,16 +26,12 @@ import java.util.Map;
 import presenter.VolleyCallback;
 
 import static com.android.volley.VolleyLog.TAG;
-import static models.ProgressBar.closeProgressBar;
-import static models.ProgressBar.cre;
-import static models.ProgressBar.initializeProgressBar;
 
 public class CallbackHandler {
-    private static ProgressDialog ProgressDialog;
     static Context mContext;
     private static StringRequest mStringRequest;
     private static RequestQueue mRequestQueue;
-
+    private static ProgressDialog progressDialog;
     private static CallbackHandler mInstance;
 
     public CallbackHandler(Context ctx) {
@@ -62,14 +59,23 @@ public class CallbackHandler {
 
     public static RequestQueue sendReqest(Context context, int method, final String requestBody, String URL, final VolleyCallback success) {
 
-
+        // if (progressDialog==null){
+        progressDialog = new ProgressDialog(context);
+        //}
+        if (progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+        mContext = context;
+        progressDialog.setTitle("Loading.." + context.getClass().toString());
+        progressDialog.setCancelable(false);
+        progressDialog.show();
         mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
 
         mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 success.onSuccess(response);
-
+                progressDialog.dismiss();
 
             }
         }, new Response.ErrorListener() {
@@ -88,8 +94,8 @@ public class CallbackHandler {
                 } else if (error instanceof ParseError) {
                     success.onFailure("ParseError");
                 }
-               // closeProgressBar(ProgressDialog);
 
+                progressDialog.dismiss();
             }
 
         }) {
@@ -119,8 +125,12 @@ public class CallbackHandler {
                 return headers;
             }
         };
+
+        mStringRequest.setRetryPolicy(new DefaultRetryPolicy( 200*30000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         CallbackHandler.getInstance(mContext).addToRequestQueue(mStringRequest);
-        //closeProgressBar(ProgressDialog);
+        progressDialog.dismiss();
         return mRequestQueue;
     }
 }

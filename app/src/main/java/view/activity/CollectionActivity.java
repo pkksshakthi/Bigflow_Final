@@ -20,12 +20,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.vsolv.bigflow.R;
 
 import org.json.JSONArray;
@@ -35,6 +30,10 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+
+import constant.Constant;
+import network.CallbackHandler;
+import presenter.VolleyCallback;
 
 public class CollectionActivity extends AppCompatActivity {
     private Button openCamera, upLoad;
@@ -46,16 +45,18 @@ public class CollectionActivity extends AppCompatActivity {
     ArrayList<Uri> imagesUriList;
     ArrayList<String> encodedImageList;
     String imageURI;
-    public static final String urlUpload = "/bigflowdemo/FileUpload";
+    public static final String URL = Constant.URL + "FileUpload";
     public static final int REQCODE = 100;
-    public static final String imageList = "imageList";
-    public static final String imageName = "name";
+    public static final String imageList = "File_Base64data";
+    public static final String imageName = "File_Extension";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection);
         /*http://sachinverma.co.in/upload-multiple-images-to-server-using-volley-android/*/
-
+        jsonObject = new JSONObject();
+        encodedImageList = new ArrayList<>();
         imageView = findViewById(R.id.ivSelected);
         upLoad = findViewById(R.id.btnUpload);
         openCamera = findViewById(R.id.openCamera);
@@ -79,27 +80,53 @@ public class CollectionActivity extends AppCompatActivity {
         });
     }
 
-    private void uploadImage()throws Exception {
-        dialog.show();
+    private void uploadImage() throws Exception {
+        //dialog.show();
 
         JSONArray jsonArray = new JSONArray();
 
-        if (encodedImageList.isEmpty()){
+        if (encodedImageList.isEmpty()) {
             Toast.makeText(this, "Please select some images first.", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        for (String encoded: encodedImageList){
-            jsonArray.put(encoded);
+        JSONArray fileImageList = new JSONArray();
+        for (String encoded : encodedImageList) {
+            JSONObject fileImage = new JSONObject();
+            fileImage.put("File_Name", "Sample");
+            fileImage.put(imageName, ".PNG");
+            fileImage.put(imageList, jsonArray);
+            fileImage.put("File_Base64data", encoded);
+            fileImageList.put(fileImage);
         }
 
         try {
-            jsonObject.put(imageName,"Sampleimage");
-            jsonObject.put(imageList, jsonArray);
+            jsonObject.put("Data", new JSONObject().put("Customer_Gid", 20));
+            jsonObject.put("File", fileImageList);
+
+
         } catch (JSONException e) {
             Log.e("JSONObject Here", e.toString());
         }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, urlUpload, jsonObject,
+
+
+        CallbackHandler.sendReqest(CollectionActivity.this, Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                Log.e("Message from server", jsonObject.toString());
+                //dialog.dismiss();
+                //messageText.setText("Images Uploaded Successfully");
+                Toast.makeText(getApplication(), "Images Uploaded Successfully", Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onFailure(String result) {
+                Log.e("Message from server", result.toString());
+                Toast.makeText(getApplication(), "Error Occurred", Toast.LENGTH_SHORT).show();
+                dialog.dismiss();
+            }
+        });
+        /*JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, urlUpload, jsonObject,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject jsonObject) {
@@ -119,7 +146,7 @@ public class CollectionActivity extends AppCompatActivity {
         jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy( 200*30000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        Volley.newRequestQueue(this).add(jsonObjectRequest);
+        Volley.newRequestQueue(this).add(jsonObjectRequest);*/
     }
 
     public void selectImage() {
@@ -133,9 +160,11 @@ public class CollectionActivity extends AppCompatActivity {
                     Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     startActivityForResult(intent, camResult);
                 } else if (items[which].equals("Gallery")) {
-                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    Intent intent = new Intent();
                     intent.setType("image/*");
-                    startActivityForResult(intent.createChooser(intent, "Select File"), selectResult);
+                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    startActivityForResult(Intent.createChooser(intent, "Choose application"), REQCODE);
 
                 } else if (items[which].equals("Cancel")) {
                     dialog.dismiss();
@@ -166,12 +195,12 @@ public class CollectionActivity extends AppCompatActivity {
                     && null != data) {
                 // Get the Image from data
 
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
                 imagesUriList = new ArrayList<Uri>();
                 encodedImageList.clear();
-                if(data.getData()!=null){
+                if (data.getData() != null) {
 
-                    Uri mImageUri=data.getData();
+                    Uri mImageUri = data.getData();
 
                     // Get the cursor
                     Cursor cursor = getContentResolver().query(mImageUri,
@@ -180,10 +209,10 @@ public class CollectionActivity extends AppCompatActivity {
                     cursor.moveToFirst();
 
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                    imageURI  = cursor.getString(columnIndex);
+                    imageURI = cursor.getString(columnIndex);
                     cursor.close();
 
-                }else {
+                } else {
                     if (data.getClipData() != null) {
                         ClipData mClipData = data.getClipData();
                         ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
@@ -198,10 +227,10 @@ public class CollectionActivity extends AppCompatActivity {
                             cursor.moveToFirst();
 
                             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                            imageURI  = cursor.getString(columnIndex);
+                            imageURI = cursor.getString(columnIndex);
                             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
                             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 20, byteArrayOutputStream);
                             String encodedImage = Base64.encodeToString(byteArrayOutputStream.toByteArray(), Base64.DEFAULT);
                             encodedImageList.add(encodedImage);
                             cursor.close();
@@ -227,11 +256,8 @@ public class CollectionActivity extends AppCompatActivity {
                     imageView.setImageBitmap(bitmap);
                     break;
                 case selectResult:
-                    Intent intent = new Intent();
-                    intent.setType("image/*");
-                    intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                    intent.setAction(Intent.ACTION_GET_CONTENT);
-                    startActivityForResult(Intent.createChooser(intent, "Choose application"), REQCODE);
+                    Uri uri = data.getData();
+                    imageView.setImageURI(uri);
                     break;
             }
         }

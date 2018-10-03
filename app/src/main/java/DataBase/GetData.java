@@ -1,9 +1,8 @@
 package DataBase;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.util.Log;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 
 import com.android.volley.Request;
 
@@ -15,29 +14,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import constant.Constant;
-import models.ScheduleForAdapter;
 import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
-import presenter.NetworkResult;
 import presenter.VolleyCallback;
 
-public class GetData implements NetworkResult {
+public class GetData {
     private List<Variables.ScheduleType> mScheduleTypeList;
     private List<Variables.FollowupReason> mFollowupReasonList;
     private static List<Variables.Product> mProductList ;
     private static Context mContext;
-    NetworkResult mResult;
-    private ScheduleForAdapter scheduleForAdapter;
-    private ListView listView;
-    private AlertDialog alertDialog;
 
     public GetData(Context context) {
         this.mContext = context;
-//        mResult=new GetData(context);
     }
 
-    public List<Variables.ScheduleType> scheduleTypeList(final NetworkResult context) {
+    public List<Variables.ScheduleType> scheduleTypeList() {
         mScheduleTypeList = new ArrayList<>();
         String URL = Constant.URL + "Schedule_Master?";
         URL = URL + "&Action=SCHEDULE_TYPE&Entity_gid=" + UserDetails.getEntity_gid();
@@ -60,8 +52,6 @@ public class GetData implements NetworkResult {
                             mScheduleTypeList.add(scheduleType);
                         }
                     }
-                    context.handlerResult("success");
-
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -79,8 +69,6 @@ public class GetData implements NetworkResult {
 
         return mScheduleTypeList;
     }
-
-
 
     public List<Variables.FollowupReason> followupList(int scheduletype_id) {
         mFollowupReasonList = new ArrayList<>();
@@ -171,9 +159,4 @@ public class GetData implements NetworkResult {
         return mProductList;
     }
 
-
-    @Override
-    public void handlerResult(String result) {
-
-    }
 }
