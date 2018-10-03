@@ -2,18 +2,10 @@ package DataBase;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.vsolv.bigflow.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,11 +21,6 @@ import models.Variables;
 import network.CallbackHandler;
 import presenter.NetworkResult;
 import presenter.VolleyCallback;
-
-import view.activity.CollectionActivity;
-import view.activity.SalesActivity;
-import view.activity.ServiceActivity;
-import view.fragment.DirctScheduleFragment;
 
 public class GetData implements NetworkResult {
     private List<Variables.ScheduleType> mScheduleTypeList;

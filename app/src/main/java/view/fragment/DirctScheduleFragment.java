@@ -34,7 +34,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import DataBase.GetData;
@@ -50,6 +49,9 @@ import presenter.VolleyCallback;
 import view.activity.CollectionActivity;
 import view.activity.SalesActivity;
 import view.activity.ServiceActivity;
+
+import static models.ProgressBar.closeProgressBar;
+import static models.ProgressBar.initializeProgressBar;
 
 
 public class DirctScheduleFragment extends Fragment implements View.OnClickListener {
@@ -72,7 +74,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
 
     private OnFragmentInteractionListener mListener;
     private GetData getData;
-    private ProgressDialog progressDialog;
+    // private ProgressDialog progressDialog;
 
     public DirctScheduleFragment() {
         // Required empty public constructor
@@ -125,9 +127,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         customerList = new ArrayList<>();
         reload.setOnClickListener(this);
-        progressDialog = new ProgressDialog(getContext());
-        progressDialog.setTitle(getResources().getString(R.string.loading));
-        progressDialog.setCancelable(false);
+
 
         getData = new GetData(getActivity());
         customerSearch.addTextChangedListener(new TextWatcher() {
@@ -256,13 +256,14 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
     }
 
     public void getScheduleType(int customer_gid) {
-        //new
-        progressDialog.show();
-        scheduleTypeList =getData.scheduleTypeList(new NetworkResult() {
+
+
+        scheduleTypeList = getData.scheduleTypeList(new NetworkResult() {
             @Override
             public void handlerResult(String result) {
-                if (result.equals("success")){
-                    createDialog();
+                if (result.equals("success")) {
+                     createDialog();
+                  // closeProgressBar(ProgressDialog);
                 }
             }
         });
@@ -329,8 +330,6 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
             scheduleTypeList.add(scheduleType);
         }
     }
-
-
 
 
     public void onButtonPressed(Uri uri) {
