@@ -86,8 +86,7 @@ public class Promise_tobuy extends Fragment implements View.OnClickListener {
             datePickerDialog.show();
 
         } else if (view == remark_submit) {
-            String a = remark_text.getText().toString();
-            int b = a.trim().length();
+
             if (Remark_date != null &&  remark_text.getText().toString().trim().length() > 0) {
 
                 if (getActivity().getIntent() != null) {

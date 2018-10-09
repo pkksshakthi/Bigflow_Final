@@ -5,15 +5,23 @@
     <!--<color name="colorAccent">#FF4081</color>-->
 
     <color name="colorPrimary">#0484a1</color>
-    <color name="colorPrimaryDark">#016379</color>
-    <color name="colorAccent">#0587eb</color>
-    <color name="colorWhite">#f9f9f9</color>
-    <color name="colorRed">#ff0000</color>
-    <color name="nav_divider_color">#778288</color>
-    <color name="login_btn_color">#0587eb</color>
-    <color name="shadow_color">#37000000</color>
-    <color name="backgroud">#dceaf2</color>
+    <color name="colorPrimaryDark">#005772</color>
+    <color name="colorAccent">#53b4d2</color>
+
+    <color name="nav_divider_color">#929b9f</color>
+    <color name="login_btn_color">#53b4d2</color>
+    <color name="shadow_color">#a7a8a8</color>
+    <color name="backgroud">#e5dcd4</color>
+    <color name="ripple">#dce3e9</color>
+
+    <!--status-->
     <color name="warning">#ffab00</color>
     <color name="success">#00c853</color>
-    <color name="ripple">#6fb8f1</color>
+
+    <color name="open">#00c853</color>
+    <color name="closed">#ff0000</color>
+    <!--colors-->
+    <color name="colorWhite">#f9f9f9</color>
+    <color name="colorRed">#ff0000</color>
+
 </resources>

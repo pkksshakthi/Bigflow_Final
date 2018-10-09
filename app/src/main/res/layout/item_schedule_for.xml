@@ -4,16 +4,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-
-        <TextView
-            android:id="@+id/item_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:textSize="20dp"
-            android:text=""/>
-
-
+    <TextView
+        android:id="@+id/item_name"
+        style="@style/SecondaryText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="Schedule" />
 
 </LinearLayout>

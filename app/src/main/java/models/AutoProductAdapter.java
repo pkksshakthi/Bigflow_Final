@@ -8,10 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -24,7 +20,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import DataBase.GetData;
 import constant.Constant;
 import network.CallbackHandler;
 import presenter.VolleyCallback;
@@ -71,6 +66,22 @@ public class AutoProductAdapter extends ArrayAdapter {
         if (product_name != null) {
             changeAdapder(product_name, favProduct);
         }
+    }
+    //Stock Autoproduct
+    public void stock_product_load(ArrayList<Variables.Product> load_product){
+        List<Variables.Product> sProductlist = new ArrayList<>();
+
+        for(int i=0;i<load_product.size();i++){
+            Variables.Product stock_product = load_product.get(i);
+            stock_product.product_id= stock_product.product_id;
+            stock_product.product_name=stock_product.product_name;
+
+            sProductlist.add(stock_product);
+
+        }
+
+        productList = sProductlist;
+        notifyDataSetChanged();
     }
 
     private void changeAdapder(final String product_name, final ArrayList<Integer> favProduct) {

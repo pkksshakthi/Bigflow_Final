@@ -1,6 +1,9 @@
 package models;
 
 
+import android.graphics.Color;
+import android.widget.EditText;
+
 public class Variables {
     public static class Menulist {
         public int Menu_gid;
@@ -44,6 +47,9 @@ public class Variables {
     public static class ScheduleType {
         public String schedule_type_name;
         public int schedule_type_id;
+        public int schedule_gid;
+        public String schedule_status;
+        public Object schedule_details;
 
         public String getSchedule_type_name() {
             return schedule_type_name;
@@ -113,4 +119,48 @@ public class Variables {
         public Status status;
     }
 
+    // Stock Autocomplete
+    public static class stockProduct{
+        public String product_id;
+        public String product_name;
+    }
+    //Stock set
+    public static class Stock{
+        public int prduct_id;
+        public EditText current_stock_qty;
+        public EditText remark;
+
+    }
+
+    public static class ServiceSummary_List {
+        private String text;
+        private String text1;
+        private  boolean isSelected = false;
+
+        public ServiceSummary_List(String text,String text1) {
+            this.text = text;
+            this.text1 = text1;
+        }
+
+        public String getText() {
+            return text;
+        }
+        public String getText1() {
+            return text1;
+        }
+
+        public  void setSelected(boolean selected) {
+            isSelected = selected;
+        }
+
+
+        public  boolean isSelected() {
+            return isSelected;
+        }
+    }
+    public static class Details{
+        public int gid;
+        public String data;
+        public int dataColor;
+    }
 }

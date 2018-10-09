@@ -47,6 +47,7 @@ import network.LocationService;
 import presenter.UserSessionManager;
 import view.fragment.AboutFragment;
 import view.fragment.AddScheduleFragment;
+import view.fragment.DayScheduleFragment;
 import view.fragment.DirctScheduleFragment;
 import view.fragment.EmpAchievementFragment;
 import view.fragment.ProfileFragment;
@@ -296,7 +297,7 @@ public class DashBoardActivity extends AppCompatActivity {
             setFragment(new AboutFragment(), true);
         } else if (id == R.id.action_logout) {
             session.logoutUser();
-            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            startActivity(new Intent(getApplicationContext(), MapsActivity.class));
             finish();
         }
 
@@ -379,7 +380,7 @@ public class DashBoardActivity extends AppCompatActivity {
                 fab.hide();
                 break;
             default:
-                fragment = DirctScheduleFragment.newInstance("Customers", "");
+                fragment = DayScheduleFragment.newInstance("Customers", "");
                 fab.hide();
                 break;
         }

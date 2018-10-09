@@ -77,6 +77,7 @@ public class EmpAchievementFragment extends Fragment {
         getActivity().setTitle("Sales Details");
         View view = inflater.inflate(R.layout.fragment_emp_achievement, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_timeLine);
+
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this.getActivity()));
         setDataListItems();

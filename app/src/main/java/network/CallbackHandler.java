@@ -14,13 +14,23 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.HttpStack;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import java.io.UnsupportedEncodingException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import presenter.VolleyCallback;
 
@@ -59,7 +69,7 @@ public class CallbackHandler {
 
         mContext = context;
 
-        mRequestQueue = Volley.newRequestQueue(context, new HurlStack(null, SSLSocket.getSocketFactory(context)));
+        mRequestQueue = Volley.newRequestQueue(context, httpsSSLcheck());
 
         mStringRequest = new StringRequest(method, URL, new Response.Listener<String>() {
             @Override
@@ -120,5 +130,35 @@ public class CallbackHandler {
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         CallbackHandler.getInstance(mContext).addToRequestQueue(mStringRequest);
         return mRequestQueue;
+    }
+    private static HttpStack httpsSSLcheck() {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            X509Certificate[] myTrustedAnchors = new X509Certificate[0];
+                            return myTrustedAnchors;
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                    }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+        }
+        return null;
     }
 }

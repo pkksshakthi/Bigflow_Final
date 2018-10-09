@@ -83,6 +83,13 @@ public class ScheduleForAdapter extends BaseAdapter {
                 TextView scheduletype_name = view.findViewById(R.id.item_name);
                 Variables.ScheduleType scheduleType = (Variables.ScheduleType) _ScheduleTypeList.get(position);
                 scheduletype_name.setText(scheduleType.getSchedule_type_name());
+
+                if(scheduleType.schedule_status!= null && scheduleType.schedule_status.equals("CLOSED")){
+                    scheduletype_name.setTextColor(_Context.getResources().getColor(R.color.closed));
+                }else{
+                    scheduletype_name.setTextColor(_Context.getResources().getColor(R.color.open));
+                }
+
                 break;
         }
 

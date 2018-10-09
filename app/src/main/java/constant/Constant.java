@@ -47,4 +47,12 @@ public class Constant {
     public static String params="parms";
     public static String Data="data";
     public static String sodetails="sodetails";
+
+
+    //Stock API
+    public static String ACTION="action";
+    public static String stckdet="stckdet";
+    public static String todaydate="todaydate";
+    public static String FET_STOCK="FET_STOCK";
+
 }

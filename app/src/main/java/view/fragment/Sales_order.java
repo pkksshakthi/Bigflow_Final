@@ -1,6 +1,7 @@
 package view.fragment;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -67,10 +68,11 @@ public class Sales_order extends Fragment implements View.OnClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Variables.Product product = autoProductAdapter.getSelectedItem(position);
-            Generate_Layout(product.product_name, Common.convertDateString(new Date(), "yyyy-MM-dd"), "0", product.product_id, i);
+            Generate_Layout(product.product_name, Common.convertDateString(new Date(), "dd-MMM-yyyy"), "0", product.product_id, i);
             auto_product.setText("");
         }
     };
+    private ProgressDialog progressDialog;
 
     public static ProspectFragment newInstance(String param1, String param2) {
         ProspectFragment fragment = new ProspectFragment();
@@ -151,7 +153,10 @@ public class Sales_order extends Fragment implements View.OnClickListener {
 
 
     public void load_favProduct() {
-
+        progressDialog=new ProgressDialog(getActivity());
+        progressDialog.setMessage("Loading..");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
         String URL = Constant.URL + "Product_SalesFav?Customer_gid=" + cust_gid + "&Entity_gid=1";
         CallbackHandler.sendReqest(getActivity(), Request.Method.GET, "", URL, new VolleyCallback() {
             @Override
@@ -160,7 +165,10 @@ public class Sales_order extends Fragment implements View.OnClickListener {
                     JSONObject jsonObject = new JSONObject(result);
                     String status = jsonObject.getString("MESSAGE");
                     val = new ArrayList<>();
-                    setHeader(Sales_order.this);
+                    setHeader();
+                    if (progressDialog!=null){
+                        progressDialog.dismiss();
+                    }
                     if (status.equals("FOUND")) {
 
                         JSONArray jsonArray;
@@ -173,9 +181,11 @@ public class Sales_order extends Fragment implements View.OnClickListener {
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject obj_json = jsonArray.getJSONObject(i);
                             String ProductName = obj_json.getString("product_displayname");
-                            String Date = obj_json.getString("dat");
+                            String lsDate = obj_json.getString("dat");
                             String Qty = obj_json.getString("sodetails_qty");
                             int ProductGid = obj_json.getInt("sodetails_product_gid");
+                            String Date = Common.convertDateString(Common.convertDate(lsDate,"yyyy-MM-dd"),
+                                    "dd-MMM-yyyy");
 
                             Generate_Layout(ProductName, Date, Qty, ProductGid, i);// Values will be passed from here
                         }
@@ -183,13 +193,17 @@ public class Sales_order extends Fragment implements View.OnClickListener {
                     }
                 } catch (JSONException e) {
                     Log.e("Login", e.getMessage());
-
+                    if (progressDialog!=null){
+                        progressDialog.dismiss();
+                    }
                 }
             }
 
 
             public void onFailure(String result) {
-                //pd.hide();
+                if (progressDialog!=null){
+                    progressDialog.dismiss();
+                }
                 Log.e("Login", result);
 
             }
@@ -282,7 +296,7 @@ public class Sales_order extends Fragment implements View.OnClickListener {
 
     }
 
-    private void setHeader(Sales_order tableView) {
+    private void setHeader() {
 
         tableLayout.setStretchAllColumns(true);
         tableLayout.setShrinkAllColumns(true);
@@ -343,8 +357,6 @@ public class Sales_order extends Fragment implements View.OnClickListener {
         tableLayout.addView(tableRow, 0);
 
 
-
-
     }
 
 
@@ -354,33 +366,32 @@ public class Sales_order extends Fragment implements View.OnClickListener {
             try {
                 if (val.size() > 0) {
 
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Confirm");
-                    builder.setMessage("Are You Sure To Submit?");
-                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    final JSONArray soDetails = new JSONArray();
+                    for (i = 0; i < val.size(); i++) {
+                        String pdct_gid = val.get(i).getTag().toString().trim();
+                        String order_qty = val.get(i).getText().toString().trim();
 
-                            try {
+                        if (pdct_gid.trim().length() > 0 && order_qty.trim().length() > 0 && pdct_gid != null && order_qty != null
+                                && Float.parseFloat(order_qty.trim()) > 0) {
 
-                                JSONArray soDetails = new JSONArray();
-                                for (i = 0; i < val.size(); i++) {
-                                    String pdct_gid = val.get(i).getTag().toString().trim();
-                                    String order_qty = val.get(i).getText().toString().trim();
+                            JSONObject objSoDetails = new JSONObject();
 
-                                    if (pdct_gid.trim().length() > 0 && order_qty.trim().length() > 0 && pdct_gid != null && order_qty != null
-                                            && Float.parseFloat(order_qty.trim()) > 0) {
+                            objSoDetails.put("sodetails_product_gid", val.get(i).getTag().toString());
+                            objSoDetails.put("quantity", val.get(i).getText().toString());
+                            soDetails.put(objSoDetails);
+                        }
+                    }
 
-                                        JSONObject objSoDetails = new JSONObject();
+                    if (soDetails.length() > 0) {
+                            // Get Confirm from User
+                        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Confirm");
+                        builder.setMessage("Are You Sure To Submit?");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                                        objSoDetails.put("sodetails_product_gid", val.get(i).getTag().toString());
-                                        objSoDetails.put("quantity", val.get(i).getText().toString());
-                                        soDetails.put(objSoDetails);
-                                    }
-                                }
-
-                                if (soDetails.length() > 0) {
-
+                                try {
                                     JSONObject Full_Json = new JSONObject();
                                     JSONObject params_Json = new JSONObject();
                                     params_Json.put(Constant.emp_gid, Integer.parseInt(UserDetails.getUser_id()));
@@ -389,32 +400,32 @@ public class Sales_order extends Fragment implements View.OnClickListener {
                                     params_Json.put(Constant.Action, "Insert");
                                     params_Json.put(Constant.Data, new JSONObject().put(Constant.sodetails, soDetails));
                                     Full_Json.put(Constant.params, params_Json);
-                                    Log.v("JSONPON", Full_Json.toString());
+//                                    Log.v("JSONPON", Full_Json.toString());
 
                                     if (Full_Json.length() > 0) {
                                         String OutMessage = SalesOrderSet(Full_Json);
                                     }
-
-
-                                } else {
-                                    Toast.makeText(getActivity(), "No Data To Save.", Toast.LENGTH_LONG).show();
+                                } catch (JSONException e) {
+                                    Log.e("Sales-Json", e.getMessage());
                                 }
 
-                            } catch (Exception e) {
-                                Log.e("Sales", e.getMessage());
+
                             }
 
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                        builder.show();
 
-                        }
+                    } else {
+                        Toast.makeText(getActivity(), "No Data To Save.", Toast.LENGTH_LONG).show();
+                    }
 
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.show();
+
                 }
             } catch (Exception e) {
                 Log.e("Sales", e.getMessage());

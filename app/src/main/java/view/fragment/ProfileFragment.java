@@ -1,6 +1,7 @@
 package view.fragment;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
@@ -29,6 +30,7 @@ import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
 import presenter.VolleyCallback;
+import view.activity.ServiceActivity;
 
 
 public class ProfileFragment extends Fragment implements View.OnClickListener {
@@ -44,6 +46,7 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
     private OnFragmentInteractionListener mListener;
     private AlertDialog.Builder builder;
     private AlertDialog dialog;
+    private ProgressDialog progressDialog;
 
     public ProfileFragment() {
 
@@ -82,6 +85,9 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
         Employee_phoneno_text = rootView.findViewById(R.id.txtEmployeePhoneNo);
         Employee_address_text = rootView.findViewById(R.id.txtEmployeeAddress);
         text_changepswd = rootView.findViewById(R.id.text_changepswd);
+        progressDialog = new ProgressDialog(getContext());
+        progressDialog.setTitle(getResources().getString(R.string.loading));
+        progressDialog.setCancelable(false);
 
         text_changepswd.setOnClickListener(this);
         String URL = Constant.URL + "/Employee_Profile?Emp_gid=" + UserDetails.getUser_id() + "&Action=EMPLOYEE_EDIT" + "&Entity_gid=" + UserDetails.getEntity_gid();
@@ -149,14 +155,44 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
             View dialogView = inflater.inflate(R.layout.alert_dialog_changepasswd, null);
             builder.setTitle("change password");
             final EditText text_oldpasswd = (EditText) dialogView.findViewById(R.id.txtOldPassword);
+            final EditText text_NewPassword = (EditText) dialogView.findViewById(R.id.txtNewPassword);
+            final EditText text_ConfirmPassword = (EditText) dialogView.findViewById(R.id.txtConfirmPassword);
+
             builder.setView(dialogView);
-            dialog = builder.create();
 
             builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(getActivity(), text_oldpasswd.getText().toString(), Toast.LENGTH_SHORT).show();
 
+                    String Oldpassword = text_oldpasswd.getText().toString();
+                    String Newpassword = text_NewPassword.getText().toString();
+                    String Confirmpassword = text_ConfirmPassword.getText().toString();
+
+                    if (Oldpassword.trim().length() > 0 && Newpassword.trim().length() > 0 && Confirmpassword.trim().length() > 0) {
+
+                        if (!Newpassword.equals(Confirmpassword)) {
+                            Toast.makeText(getActivity(), "New And Confirm Password Not Matched", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        JSONObject Json = new JSONObject();
+                        JSONObject params_Json = new JSONObject();
+                        try {
+                            params_Json.put("emp_code", UserDetails.getUser_code());
+                            params_Json.put("old_pswd", Oldpassword);
+                            params_Json.put("new_pswd", Newpassword);
+                            Json.put("params", params_Json);
+                            if (Json.length() > 0) {
+                                String OutMessage = PasswordSet(Json);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    } else {
+                        Toast.makeText(getActivity(), "Fill All The Required Field", Toast.LENGTH_SHORT).show();
+
+                    }
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -165,12 +201,47 @@ public class ProfileFragment extends Fragment implements View.OnClickListener {
                     dialog.dismiss();
                 }
             });
-
+            dialog = builder.create();
             dialog.show();
 
 
         }
 
+    }
+
+    public String PasswordSet(JSONObject jsonObject) {
+        progressDialog.show();
+        String URL = Constant.URL + "Change_Password?Type=PROFILE_EMPCHANGE_PASSWORD&Emp_gid="+UserDetails.getUser_id() ;
+        CallbackHandler.sendReqest(getContext(), Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
+            @Override
+            public void onSuccess(String result) {
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String status = jsonObject.getString("MESSAGE");
+                    Toast.makeText(getContext(), status, Toast.LENGTH_LONG).show();
+                    progressDialog.dismiss();
+//                    if (status.equals("SUCCESS")) {
+//                        Toast.makeText(getContext(), "Password Changed Successfully.", Toast.LENGTH_LONG).show();
+//                        progressDialog.dismiss();
+//
+//
+//                    } else {
+//                        progressDialog.dismiss();
+//                        Toast.makeText(getContext(), "Password Not Changed Successfully.", Toast.LENGTH_LONG).show();
+//                    }
+                } catch (JSONException e) {
+                    progressDialog.dismiss();
+                    Log.e("Password", e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(String result) {
+                Log.e("Password", result);
+                progressDialog.dismiss();
+            }
+        });
+        return "";
     }
 
 

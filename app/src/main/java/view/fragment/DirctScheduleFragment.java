@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -46,9 +48,12 @@ import models.UserDetails;
 import models.Variables;
 import network.CallbackHandler;
 import presenter.VolleyCallback;
+import view.activity.DashBoardActivity;
 import view.activity.MapsActivity;
 import view.activity.SalesActivity;
 import view.activity.ServiceActivity;
+import view.activity.StatusActivity;
+import view.activity.StockActivity;
 
 
 public class DirctScheduleFragment extends Fragment implements View.OnClickListener {
@@ -220,7 +225,14 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
 
             @Override
             public void onViewDetailsClick(Variables.Customer item, int position) {
-                Toast.makeText(getContext(), "This Module implement into new version.", Toast.LENGTH_LONG).show();
+                sessiondata.putInt("customer_id", item.cust_gid);
+                Fragment fragment = new ViewdetailFragment();
+                fragment.setArguments(sessiondata);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.content_frame, fragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 
@@ -338,6 +350,7 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                 if (scheduleTypeList.get(position) instanceof Variables.ScheduleType) {
 
                     Variables.ScheduleType scheduleType = (Variables.ScheduleType) scheduleTypeList.get(position);
+                    sessiondata.putInt("schedule_gid",scheduleType.schedule_gid);
                     sessiondata.putInt("scheduletype_id", scheduleType.schedule_type_id);
                     Class aClass = null;
                     switch (scheduleType.schedule_type_name) {
@@ -348,10 +361,10 @@ public class DirctScheduleFragment extends Fragment implements View.OnClickListe
                             aClass = MapsActivity.class;
                             break;
                         case "SERVICE":
-                            aClass = ServiceActivity.class;
+                            aClass = StatusActivity.class;
                             break;
                         case "STOCK":
-                            aClass = ServiceActivity.class;
+                            aClass = StockActivity.class;
                             break;
                         case "OTHERS":
                             aClass = null;

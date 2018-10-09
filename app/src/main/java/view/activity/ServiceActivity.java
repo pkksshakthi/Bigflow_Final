@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -54,7 +55,7 @@ public class ServiceActivity extends AppCompatActivity {
     private EditText product_count, service_date;
     private Spinner dropdown;
     public Button btnsubmit_service;
-    ImageButton add_service_Buttn;
+    public ImageButton add_service_Buttn;
     private TableRow tableRow;
     private Bundle customer_details;
     String[] items = new String[]{"Customer", "Executive"};
@@ -76,7 +77,7 @@ public class ServiceActivity extends AppCompatActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Service");
+        toolbar.setTitle("Service");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -314,7 +315,7 @@ public class ServiceActivity extends AppCompatActivity {
 
             sNo.setBackground(getResources().getDrawable(R.drawable.table_body));
             sNo.setLayoutParams(lp);
-            sNo.setText("1");
+            sNo.setText("1  ");
             sNo.setGravity(Gravity.CENTER);
             int total = tableLayout.getChildCount();
             for (int j = 1; j <= total; j++) {
@@ -338,7 +339,7 @@ public class ServiceActivity extends AppCompatActivity {
 
             Product_sino.setBackground(getResources().getDrawable(R.drawable.table_body));
             Product_sino.setLayoutParams(lp);
-            Product_sino.setHint("Ser No");
+            Product_sino.setHint("Si No");
             Product_sino.setGravity(Gravity.CENTER);
             Product_sino.setFocusable(true);
             Product_sino.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -352,9 +353,10 @@ public class ServiceActivity extends AppCompatActivity {
             Remark.setFocusable(true);
             Remark.setInputType(InputType.TYPE_CLASS_TEXT);
 
-            ImageButton Deletebtn = new ImageButton(this);
+            Button Deletebtn = new Button(this);
             Deletebtn.setLayoutParams(lp);
-            Deletebtn.setImageDrawable(getResources().getDrawable(R.drawable.ic_action_remove));
+            Deletebtn.setHint("Delete");
+            Deletebtn.setGravity(Gravity.CENTER);
             Deletebtn.setFocusable(true);
 
             Deletebtn.setOnClickListener(delete_clickListener);
@@ -393,7 +395,7 @@ public class ServiceActivity extends AppCompatActivity {
         tableRow.setLayoutParams(lp);
 
         TextView sNo = new TextView(this);
-        sNo.setText("S.No");
+        sNo.setText("SR.No");
         sNo.setTextColor(0xFFFFFFFF);
         sNo.setTextSize(15);
         sNo.setGravity(Gravity.CENTER);
@@ -409,7 +411,7 @@ public class ServiceActivity extends AppCompatActivity {
         productName.setBackgroundResource(R.drawable.table_header);
 
         TextView sino = new TextView(this);
-        sino.setText("Serial No");
+        sino.setText("Product SI NO");
         sino.setGravity(Gravity.CENTER);
         sino.setTextColor(0xFFFFFFFF);
         sino.setTextSize(15);
@@ -425,7 +427,7 @@ public class ServiceActivity extends AppCompatActivity {
         Remark.setBackgroundResource(R.drawable.table_header);
 
         TextView delete = new TextView(this);
-        delete.setText("Action");
+        delete.setText("Delete");
         delete.setGravity(Gravity.CENTER);
         delete.setTextColor(0xFFFFFFFF);
         delete.setTextSize(15);
@@ -454,7 +456,9 @@ public class ServiceActivity extends AppCompatActivity {
             String month_to_db = String.format("%02d", parseInt(month_todb));
             String month = new DateFormatSymbols().getShortMonths()[month1 - 1];
             String Date = day + "/" + month + "/" + year1;
-            String Date_db = day + "/" + month_to_db + "/" + year1;
+           // String Date_db = day + "/" + month_to_db + "/" + year1;
+            String Date_db = year1 + "-" + month_to_db + "-" + day;
+
             service_date.setText(Date);
             Remark_date = Date_db;
 
@@ -463,7 +467,7 @@ public class ServiceActivity extends AppCompatActivity {
 
     public String ServiceSet(JSONObject jsonObject) {
         progressDialog.show();
-        String URL = "https://127.0.0.1:8001/" + "Service_SetAPI?Emp_gid=" + UserDetails.getUser_id() + "&Entity_gid=1";
+        String URL = Constant.URL + "Service_SetAPI?Emp_gid=" + UserDetails.getUser_id() + "&Entity_gid=1";
 
         CallbackHandler.sendReqest(ServiceActivity.this, Request.Method.POST, jsonObject.toString(), URL, new VolleyCallback() {
             @Override
@@ -474,6 +478,8 @@ public class ServiceActivity extends AppCompatActivity {
                     if (status.equals("SUCCESS")) {
                         Toast.makeText(ServiceActivity.this, "Service Saved Successfully.", Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
+                        startActivity(new Intent(getApplicationContext(), DashBoardActivity.class));
+                        finish();
                         ServiceActivity.this.finish();
 
                     } else {

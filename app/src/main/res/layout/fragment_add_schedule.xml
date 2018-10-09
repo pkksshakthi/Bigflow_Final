@@ -5,6 +5,39 @@
     android:orientation="vertical"
     tools:context="view.fragment.AddScheduleFragment">
 
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/PrimaryText"
+                android:id="@+id/txtSort"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_action_sort"
+                android:text="Sort" />
+
+            <TextView style="@style/HorizontalLine"></TextView>
+
+            <TextView
+                style="@style/PrimaryText"
+                android:id="@+id/txtFilter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_action_filter"
+                android:text="Filter" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/employee_RecyclerView"
         android:layout_width="match_parent"
